@@ -1,0 +1,28 @@
+pkgname=seat-udev
+pkgver=0.1.0
+pkgrel=2
+pkgdesc='Udev seat model and persistent seat assignment utility'
+arch=(x86_64)
+url='https://github.com/shaitan-machine1/seat-udev'
+license=(GPL-3.0-only)
+depends=(gcc-libs glibc libudev)
+makedepends=(cargo git rust)
+_commit=0afdc63a928c21d4064bf917c8a04f9d8e358f74
+source=("git+ssh://git@github.com/shaitan-machine1/seat-udev.git#commit=$_commit")
+sha256sums=('SKIP')
+
+build() {
+  cd "$srcdir/seat-udev"
+  CARGO_TARGET_DIR=target cargo build --release --locked --workspace
+}
+
+check() {
+  cd "$srcdir/seat-udev"
+  CARGO_TARGET_DIR=target cargo test --release --locked --workspace
+}
+
+package() {
+  cd "$srcdir/seat-udev"
+  install -Dm755 target/release/seatctl "$pkgdir/usr/bin/seatctl"
+  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

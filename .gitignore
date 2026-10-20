@@ -1,0 +1,10 @@
+**/src/
+**/pkg/
+**/*.pkg.tar.*
+/aclad/aclad/
+/multiseat/multiseat/
+/scoped/scoped/
+/sddm/sddm/
+/seat-udev/seat-udev/
+/seatd/seatd/
+/sessiond/sessiond/

@@ -1,0 +1,4 @@
+#!/bin/sh
+exec 2>&1
+install -d -o sddm -g sddm /var/lib/sddm
+exec /usr/bin/sddm

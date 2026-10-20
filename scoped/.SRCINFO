@@ -1,0 +1,17 @@
+pkgbase = scoped
+	pkgdesc = Root-only D-Bus cgroup v2 scope manager
+	pkgver = 0.1.0
+	pkgrel = 2
+	url = https://github.com/shaitan-machine1/scoped
+	arch = x86_64
+	license = GPL-3.0-only
+	makedepends = cargo
+	makedepends = git
+	makedepends = rust
+	depends = dbus
+	depends = gcc-libs
+	depends = glibc
+	source = git+ssh://git@github.com/shaitan-machine1/scoped.git#commit=047506336cbfc8e782665596563d3542b4739b7d
+	sha256sums = SKIP
+
+pkgname = scoped

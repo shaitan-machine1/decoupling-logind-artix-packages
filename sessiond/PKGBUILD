@@ -1,0 +1,42 @@
+pkgname=sessiond
+pkgver=0.1.0
+pkgrel=2
+pkgdesc='PAM-integrated session lifecycle and per-user service manager'
+arch=(x86_64)
+url='https://github.com/shaitan-machine1/sessiond'
+license=(GPL-3.0-only)
+depends=(coreutils dbus gcc-libs glibc pam s6-base s6-rc scoped)
+makedepends=(cargo git rust)
+backup=('etc/sessiond/sessiond.toml' 'etc/pam.d/sessiond-user')
+install=sessiond.install
+_commit=e01121108f9aec1194aa623417f4ba5d045f5d9b
+source=("git+ssh://git@github.com/shaitan-machine1/sessiond.git#commit=$_commit")
+sha256sums=('SKIP')
+
+build() {
+  cd "$srcdir/sessiond"
+  CARGO_TARGET_DIR=target cargo build --release --locked --workspace
+}
+
+check() {
+  cd "$srcdir/sessiond"
+  CARGO_TARGET_DIR=target cargo test --release --locked --workspace
+}
+
+package() {
+  cd "$srcdir/sessiond"
+  install -Dm755 target/release/sessiond "$pkgdir/usr/bin/sessiond"
+  install -Dm755 target/release/sessiond-user-launcher \
+    "$pkgdir/usr/libexec/sessiond/sessiond-user-launcher"
+  install -Dm755 target/release/libpam_sessiond.so \
+    "$pkgdir/usr/lib/security/pam_sessiond.so"
+  install -Dm755 dist/libexec/user-service-manager \
+    "$pkgdir/usr/libexec/sessiond/user-service-manager"
+  install -Dm644 dist/sessiond.toml "$pkgdir/etc/sessiond/sessiond.toml"
+  install -Dm644 dist/pam/sessiond-user "$pkgdir/etc/pam.d/sessiond-user"
+  install -Dm644 dist/dbus/org.decoupling.sessiond1.conf \
+    "$pkgdir/usr/share/dbus-1/system.d/org.decoupling.sessiond1.conf"
+  install -d "$pkgdir/usr/lib/sessiond/s6-rc"
+  cp -a dist/s6-user/source "$pkgdir/usr/lib/sessiond/s6-rc/"
+  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}
