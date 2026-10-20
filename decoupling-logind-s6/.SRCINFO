@@ -1,7 +1,7 @@
 pkgbase = decoupling-logind-s6
 	pkgdesc = s6-rc service definitions for the decoupled login stack
 	pkgver = 0.1.0
-	pkgrel = 2
+	pkgrel = 3
 	url = https://github.com/shaitan-machine1/decoupling-logind-artix-packages
 	arch = any
 	license = GPL-3.0-only
@@ -9,11 +9,15 @@ pkgbase = decoupling-logind-s6
 	depends = s6-base
 	depends = s6-rc
 	depends = udev
+	provides = elogind=257.16
+	provides = logind=257.16
 	provides = logind-s6
 	provides = init-logind
 	provides = init-sddm
+	conflicts = elogind
 	conflicts = logind-s6
 	conflicts = init-logind
 	conflicts = init-sddm
+	replaces = elogind
 
 pkgname = decoupling-logind-s6
