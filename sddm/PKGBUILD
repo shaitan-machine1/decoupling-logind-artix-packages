@@ -1,6 +1,6 @@
 pkgname=sddm
 pkgver=0.21.0
-pkgrel=8
+pkgrel=9
 pkgdesc='QML Wayland display manager with multiseatd integration'
 arch=(x86_64)
 url='https://github.com/shaitan-machine1/sddm'
@@ -44,8 +44,6 @@ package() {
     "$pkgdir/etc/sddm.conf.d/10-decoupling.conf"
   install -Dm644 dist/pam/sddm "$pkgdir/etc/pam.d/sddm"
   install -Dm644 dist/pam/sddm-greeter "$pkgdir/etc/pam.d/sddm-greeter"
-  install -Dm644 dist/wayland-sessions/sway.desktop \
-    "$pkgdir/usr/share/wayland-sessions/sway.desktop"
   install -Dm644 "$srcdir/sddm.sysusers" "$pkgdir/usr/lib/sysusers.d/sddm.conf"
   install -Dm644 "$srcdir/sddm.tmpfiles" "$pkgdir/usr/lib/tmpfiles.d/sddm.conf"
 }

@@ -1,7 +1,7 @@
 pkgbase = sddm
 	pkgdesc = QML Wayland display manager with multiseatd integration
 	pkgver = 0.21.0
-	pkgrel = 8
+	pkgrel = 9
 	url = https://github.com/shaitan-machine1/sddm
 	arch = x86_64
 	license = GPL-2.0-or-later
