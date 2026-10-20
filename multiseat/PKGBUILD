@@ -1,13 +1,13 @@
 pkgname=multiseat
 pkgver=0.1.0
-pkgrel=2
+pkgrel=3
 pkgdesc='Central udev-aware seat broker and compositor launcher'
 arch=(x86_64)
 url='https://github.com/shaitan-machine1/multiseat'
 license=(GPL-3.0-only)
 depends=(dbus gcc-libs glibc libudev seat-udev)
 makedepends=(cargo git rust)
-_commit=8cb6dafb626516d89fc51701e0b6facc692726ac
+_commit=c6e2589fa8cac9295b0611e2c198ca57ce598b2d
 source=("git+ssh://git@github.com/shaitan-machine1/multiseat.git#commit=$_commit")
 sha256sums=('SKIP')
 
