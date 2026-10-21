@@ -1,7 +1,7 @@
 pkgbase = sddm
 	pkgdesc = QML Wayland display manager with multiseatd seat discovery
 	pkgver = 0.21.0
-	pkgrel = 11
+	pkgrel = 12
 	url = https://github.com/shaitan-machine1/sddm
 	arch = x86_64
 	license = GPL-2.0-or-later
@@ -31,6 +31,7 @@ pkgbase = sddm
 	provides = init-sddm
 	conflicts = init-sddm
 	backup = etc/pam.d/sddm
+	backup = etc/pam.d/sddm-autologin
 	backup = etc/pam.d/sddm-greeter
 	backup = etc/sddm.conf.d/10-decoupling.conf
 	source = git+ssh://git@github.com/shaitan-machine1/sddm.git#commit=73edeef4320212c2507365a4af3c46f49de789b4

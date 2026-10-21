@@ -1,0 +1,9 @@
+# Autologin skips authentication but still opens a full local session, so the
+# common session graph (and with it the decoupled stack) applies unchanged.
+auth       required     pam_env.so
+auth       required     pam_shells.so
+auth       requisite    pam_nologin.so
+auth       required     pam_permit.so
+account    include      system-local-login
+password   include      system-local-login
+session    include      system-local-login

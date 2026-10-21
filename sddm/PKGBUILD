@@ -1,6 +1,6 @@
 pkgname=sddm
 pkgver=0.21.0
-pkgrel=11
+pkgrel=12
 pkgdesc='QML Wayland display manager with multiseatd seat discovery'
 arch=(x86_64)
 url='https://github.com/shaitan-machine1/sddm'
@@ -11,7 +11,8 @@ depends=(bash decoupling-logind-pam decoupling-logind-s6 glibc libgcc libstdc++ 
          qt6-declarative s6-base s6-rc seatd ttf-font weston xorg-xauth)
 makedepends=(cmake git ninja qt6-tools)
 optdepends=('sway: packaged example user session')
-backup=('etc/pam.d/sddm' 'etc/pam.d/sddm-greeter' 'etc/sddm.conf.d/10-decoupling.conf')
+backup=('etc/pam.d/sddm' 'etc/pam.d/sddm-autologin' 'etc/pam.d/sddm-greeter'
+        'etc/sddm.conf.d/10-decoupling.conf')
 _commit=73edeef4320212c2507365a4af3c46f49de789b4
 source=("git+ssh://git@github.com/shaitan-machine1/sddm.git#commit=$_commit"
         sddm.sysusers
@@ -47,6 +48,7 @@ package() {
   install -Dm644 "$startdir/10-decoupling.conf" \
     "$pkgdir/etc/sddm.conf.d/10-decoupling.conf"
   install -Dm644 "$startdir/sddm.pam" "$pkgdir/etc/pam.d/sddm"
+  install -Dm644 "$startdir/sddm-autologin.pam" "$pkgdir/etc/pam.d/sddm-autologin"
   install -Dm644 "$startdir/sddm-greeter.pam" "$pkgdir/etc/pam.d/sddm-greeter"
   install -Dm644 "$srcdir/sddm.sysusers" "$pkgdir/usr/lib/sysusers.d/sddm.conf"
   install -Dm644 "$srcdir/sddm.tmpfiles" "$pkgdir/usr/lib/tmpfiles.d/sddm.conf"
