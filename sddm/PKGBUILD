@@ -1,6 +1,6 @@
 pkgname=sddm
 pkgver=0.21.0
-pkgrel=9
+pkgrel=10
 pkgdesc='QML Wayland display manager with multiseatd integration'
 arch=(x86_64)
 url='https://github.com/shaitan-machine1/sddm'
@@ -29,7 +29,8 @@ build() {
     -DDBUS_CONFIG_FILENAME=sddm_org.freedesktop.DisplayManager.conf \
     -DENABLE_JOURNALD=OFF \
     -DNO_SYSTEMD=ON \
-    -DUID_MAX=60513
+    -DUID_MAX=60513 \
+    -DSDDM_INITIAL_VT=7
   cmake --build build
 }
 

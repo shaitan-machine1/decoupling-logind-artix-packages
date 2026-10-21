@@ -36,6 +36,21 @@ sudo s6 set enable logind sddm-srv
 sudo s6 set apply
 ```
 
+## Virtual terminals and udev rules
+
+`sddm` is built with `-DSDDM_INITIAL_VT=7` because Artix runs gettys on
+tty1-tty6 and tty12, and SDDM cannot tell a used VT from a free one without
+logind (`Display::isTtyInUse()` asks logind and answers "free" when it is
+absent). Sessions are unaffected: they always allocate a fresh VT through
+`VT_OPENQRY`.
+
+`seat-udev` installs `71-seat.rules`/`73-seat-late.rules` and `aclad` installs
+`70-uaccess.rules`. These replace the files elogind used to provide. Without
+them no device carries a `seat`, `master-of-seat` or `uaccess` tag, so
+multiseatd publishes no seat, creates no socket, and nothing graphical can
+start. Installing the packages reloads udev's rules; devices that already
+exist need `udevadm trigger` or a reboot.
+
 The SDDM PAM files deliberately contain neither `pam_elogind` nor
 `pam_systemd`. `libelogind` may remain installed for unrelated dynamically
 linked programs. The service package conflicts with and replaces `elogind`,
