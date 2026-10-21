@@ -1,0 +1,10 @@
+# Common session fragment for the decoupled login stack.
+#
+# Order matters: the environment first, then session ownership, then the
+# device ACLs that depend on the session's seat and user.
+#
+# Include this exactly once per login path. Artix's own paths all reach it
+# through /etc/pam.d/system-login; see /usr/share/doc/decoupling-logind-pam.
+session    required     pam_env.so
+session    required     pam_sessiond.so timeout=30s
+session    required     pam_aclad.so timeout=30s

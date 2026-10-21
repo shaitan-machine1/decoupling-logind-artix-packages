@@ -1,0 +1,6 @@
+# The greeter is not authenticated, but it is a real session owned by the
+# sddm user and needs seat ownership and device ACLs.
+auth       required     pam_permit.so
+account    required     pam_permit.so
+password   required     pam_deny.so
+session    include      decoupling-logind-session

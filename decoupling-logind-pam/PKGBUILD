@@ -1,0 +1,20 @@
+pkgname=decoupling-logind-pam
+pkgver=0.1.0
+pkgrel=1
+pkgdesc='Common PAM session fragment for the decoupled login stack'
+arch=(any)
+url='https://github.com/shaitan-machine1/decoupling-logind-artix-packages'
+license=(GPL-3.0-only)
+depends=(aclad pam sessiond)
+backup=('etc/pam.d/decoupling-logind-session')
+source=()
+sha256sums=()
+
+package() {
+  install -Dm644 "$startdir/decoupling-logind-session.pam" \
+    "$pkgdir/etc/pam.d/decoupling-logind-session"
+  install -Dm644 "$startdir/README.md" \
+    "$pkgdir/usr/share/doc/$pkgname/README.md"
+  install -Dm644 "$startdir/../LICENSE" \
+    "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

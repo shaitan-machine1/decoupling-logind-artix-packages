@@ -1,7 +1,7 @@
 pkgbase = multiseat
-	pkgdesc = Central udev-aware seat broker and compositor launcher
+	pkgdesc = Seat topology orchestrator supervising one seatd process per seat
 	pkgver = 0.1.0
-	pkgrel = 2
+	pkgrel = 6
 	url = https://github.com/shaitan-machine1/multiseat
 	arch = x86_64
 	license = GPL-3.0-only
@@ -12,8 +12,10 @@ pkgbase = multiseat
 	depends = gcc-libs
 	depends = glibc
 	depends = libudev
+	depends = s6
 	depends = seat-udev
-	source = git+ssh://git@github.com/shaitan-machine1/multiseat.git#commit=8cb6dafb626516d89fc51701e0b6facc692726ac
+	depends = seatd
+	source = git+ssh://git@github.com/shaitan-machine1/multiseat.git#commit=74c00deff2e296be2d9d2f897f536b1559981175
 	sha256sums = SKIP
 
 pkgname = multiseat

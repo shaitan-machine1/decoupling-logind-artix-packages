@@ -9,8 +9,11 @@ Packages:
 - `multiseat`
 - `sessiond`
 - `aclad`
-- the patched `seatd`/libseat fork
-- the patched Wayland-only `sddm` fork
+- the patched `seatd`/libseat fork, which serves one configured seat per
+  process
+- the patched Wayland-only `sddm` fork, which also owns its configuration,
+  PAM files and `sddm-srv`/`sddm-log` services
+- `decoupling-logind-pam`, the single common PAM session fragment
 - `decoupling-logind-s6`, which supplies the combined s6-rc service graph and
   provides Artix's `init-logind`, `logind`, and `elogind` dependencies without
   installing the elogind daemon or its D-Bus activation file
@@ -24,9 +27,17 @@ The service graph is:
 
 ```text
 mount-cgroups + dbus-srv -> scoped-srv -> sessiond-srv -> aclad-srv
-udevadm + dbus-srv ---------------------> multiseatd-srv
-all four --------------------------------> sddm-srv
+udevadm + dbus-srv -> multiseatd-scan-srv -> multiseatd-srv
+all four ------------------------------------> sddm-srv
 ```
+
+`multiseatd-scan-srv` is the nested `s6-svscan` on `/run/multiseatd/scandir`.
+multiseatd generates one immutable seatd service per udev seat under
+`/run/multiseatd/services/<seat>-<hash>` and attaches it to that scan
+directory, so each seat gets its own supervised `seatd` process, its own
+root-only socket and its own static device allowlist. Topology changes are
+applied only by `multiseatctl refresh`, which may terminate the graphical
+sessions of the affected seats.
 
 After package installation, synchronize and apply the Artix s6 repository:
 
@@ -50,6 +61,15 @@ them no device carries a `seat`, `master-of-seat` or `uaccess` tag, so
 multiseatd publishes no seat, creates no socket, and nothing graphical can
 start. Installing the packages reloads udev's rules; devices that already
 exist need `udevadm trigger` or a reboot.
+
+## PAM
+
+`decoupling-logind-pam` owns `/etc/pam.d/decoupling-logind-session`, which
+runs `pam_env`, then `pam_sessiond`, then `pam_aclad`. Include it exactly once
+per login path by adding `session include decoupling-logind-session` to
+`/etc/pam.d/system-login`; the SDDM greeter includes it directly because it
+does not go through `system-login`. See
+`/usr/share/doc/decoupling-logind-pam/README.md`.
 
 The SDDM PAM files deliberately contain neither `pam_elogind` nor
 `pam_systemd`. `libelogind` may remain installed for unrelated dynamically

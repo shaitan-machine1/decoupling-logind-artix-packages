@@ -1,12 +1,14 @@
 pkgname=sddm
 pkgver=0.21.0
-pkgrel=10
-pkgdesc='QML Wayland display manager with multiseatd integration'
+pkgrel=11
+pkgdesc='QML Wayland display manager with multiseatd seat discovery'
 arch=(x86_64)
 url='https://github.com/shaitan-machine1/sddm'
 license=(GPL-2.0-or-later)
-provides=(display-manager)
-depends=(bash glibc libgcc libstdc++ libxau libxcb pam qt6-base qt6-declarative seatd ttf-font weston xorg-xauth)
+provides=(display-manager init-sddm)
+conflicts=(init-sddm)
+depends=(bash decoupling-logind-pam decoupling-logind-s6 glibc libgcc libstdc++ libxau libxcb pam qt6-base
+         qt6-declarative s6-base s6-rc seatd ttf-font weston xorg-xauth)
 makedepends=(cmake git ninja qt6-tools)
 optdepends=('sway: packaged example user session')
 backup=('etc/pam.d/sddm' 'etc/pam.d/sddm-greeter' 'etc/sddm.conf.d/10-decoupling.conf')
@@ -40,11 +42,15 @@ check() {
 
 package() {
   DESTDIR="$pkgdir" cmake --install build
-  cd "$srcdir/sddm"
-  install -Dm644 dist/sddm.conf.d/10-decoupling.conf \
+
+  # Runtime policy belongs to the distribution package, not to the fork.
+  install -Dm644 "$startdir/10-decoupling.conf" \
     "$pkgdir/etc/sddm.conf.d/10-decoupling.conf"
-  install -Dm644 dist/pam/sddm "$pkgdir/etc/pam.d/sddm"
-  install -Dm644 dist/pam/sddm-greeter "$pkgdir/etc/pam.d/sddm-greeter"
+  install -Dm644 "$startdir/sddm.pam" "$pkgdir/etc/pam.d/sddm"
+  install -Dm644 "$startdir/sddm-greeter.pam" "$pkgdir/etc/pam.d/sddm-greeter"
   install -Dm644 "$srcdir/sddm.sysusers" "$pkgdir/usr/lib/sysusers.d/sddm.conf"
   install -Dm644 "$srcdir/sddm.tmpfiles" "$pkgdir/usr/lib/tmpfiles.d/sddm.conf"
+
+  install -d "$pkgdir/etc/s6/sv"
+  cp -a "$startdir/s6/." "$pkgdir/etc/s6/sv/"
 }

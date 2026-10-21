@@ -1,13 +1,13 @@
 pkgname=decoupling-logind-s6
 pkgver=0.1.0
-pkgrel=4
+pkgrel=5
 pkgdesc='s6-rc service definitions for the decoupled login stack'
 arch=(any)
 url='https://github.com/shaitan-machine1/decoupling-logind-artix-packages'
 license=(GPL-3.0-only)
-depends=(dbus-s6 s6-base s6-rc udev)
-provides=('elogind=257.16' 'logind=257.16' 'logind-s6' 'init-logind' 'init-sddm')
-conflicts=('elogind' 'logind-s6' 'init-logind' 'init-sddm')
+depends=(aclad dbus-s6 multiseat s6 s6-base s6-rc scoped sessiond udev)
+provides=('elogind=257.16' 'logind=257.16' 'logind-s6' 'init-logind')
+conflicts=('elogind' 'logind-s6' 'init-logind')
 replaces=('elogind')
 source=()
 sha256sums=()

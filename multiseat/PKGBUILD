@@ -1,13 +1,13 @@
 pkgname=multiseat
 pkgver=0.1.0
-pkgrel=5
-pkgdesc='Central udev-aware seat broker and compositor launcher'
+pkgrel=6
+pkgdesc='Seat topology orchestrator supervising one seatd process per seat'
 arch=(x86_64)
 url='https://github.com/shaitan-machine1/multiseat'
 license=(GPL-3.0-only)
-depends=(dbus gcc-libs glibc libudev seat-udev)
+depends=(dbus gcc-libs glibc libudev s6 seat-udev seatd)
 makedepends=(cargo git rust)
-_commit=4b6486fdaea85dc87098b82ba7cc97ee6111d615
+_commit=74c00deff2e296be2d9d2f897f536b1559981175
 source=("git+ssh://git@github.com/shaitan-machine1/multiseat.git#commit=$_commit")
 sha256sums=('SKIP')
 
@@ -24,6 +24,7 @@ check() {
 package() {
   cd "$srcdir/multiseat"
   install -Dm755 target/release/multiseatd "$pkgdir/usr/bin/multiseatd"
+  install -Dm755 target/release/multiseatctl "$pkgdir/usr/bin/multiseatctl"
   install -Dm755 target/release/seat-launch "$pkgdir/usr/bin/seat-launch"
   install -Dm644 dist/dbus/org.decoupling.multiseatd1.conf \
     "$pkgdir/usr/share/dbus-1/system.d/org.decoupling.multiseatd1.conf"
