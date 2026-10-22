@@ -4,13 +4,16 @@ Ships `/etc/pam.d/decoupling-logind-session`, the single place where the
 decoupled login stack is wired into PAM:
 
 ```text
-session    required     pam_env.so
-session    required     pam_sessiond.so timeout=30s
-session    required     pam_aclad.so timeout=30s
+-session    optional    pam_env.so
+-session    optional    pam_sessiond.so timeout=30s
+-session    optional    pam_aclad.so timeout=30s
 ```
 
 `pam_sessiond` creates the session and its scope; `pam_aclad` then grants the
-seat's device ACLs to that session's user, so it must come second.
+seat's device ACLs to that session's user, so it must come second. All three
+entries are optional so infrastructure failures cannot deny login. The leading
+`-` also tolerates a temporarily missing module during package transitions;
+module failures are reported through PAM syslog diagnostics.
 
 ## Enabling it
 

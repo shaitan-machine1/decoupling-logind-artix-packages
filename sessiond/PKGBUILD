@@ -1,6 +1,6 @@
 pkgname=sessiond
 pkgver=0.1.0
-pkgrel=4
+pkgrel=5
 pkgdesc='PAM-integrated session lifecycle and per-user service manager'
 arch=(x86_64)
 url='https://github.com/shaitan-machine1/sessiond'
@@ -9,7 +9,7 @@ depends=(coreutils dbus gcc-libs glibc pam s6-base s6-rc scoped)
 makedepends=(cargo git rust)
 backup=('etc/sessiond/sessiond.toml' 'etc/pam.d/sessiond-user')
 install=sessiond.install
-_commit=2cc83db8db0c1bbb91e66038eac4a0bcffdbaa7e
+_commit=f09a420dcc4fe80579913835faac400fa6098beb
 source=("git+ssh://git@github.com/shaitan-machine1/sessiond.git#commit=$_commit")
 sha256sums=('SKIP')
 
@@ -26,6 +26,7 @@ check() {
 package() {
   cd "$srcdir/sessiond"
   install -Dm755 target/release/sessiond "$pkgdir/usr/bin/sessiond"
+  install -Dm755 target/release/sessionctl "$pkgdir/usr/bin/sessionctl"
   install -Dm755 target/release/sessiond-user-launcher \
     "$pkgdir/usr/libexec/sessiond/sessiond-user-launcher"
   install -Dm755 target/release/libpam_sessiond.so \

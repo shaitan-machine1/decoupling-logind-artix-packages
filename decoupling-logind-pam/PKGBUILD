@@ -1,6 +1,6 @@
 pkgname=decoupling-logind-pam
 pkgver=0.1.0
-pkgrel=1
+pkgrel=2
 pkgdesc='Common PAM session fragment for the decoupled login stack'
 arch=(any)
 url='https://github.com/shaitan-machine1/decoupling-logind-artix-packages'

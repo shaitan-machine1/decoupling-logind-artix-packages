@@ -5,6 +5,6 @@
 #
 # Include this exactly once per login path. Artix's own paths all reach it
 # through /etc/pam.d/system-login; see /usr/share/doc/decoupling-logind-pam.
-session    required     pam_env.so
-session    required     pam_sessiond.so timeout=30s
-session    required     pam_aclad.so timeout=30s
+-session    optional    pam_env.so
+-session    optional    pam_sessiond.so timeout=30s
+-session    optional    pam_aclad.so timeout=30s

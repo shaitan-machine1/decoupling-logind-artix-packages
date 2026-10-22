@@ -1,6 +1,6 @@
 pkgname=seatd
 pkgver=0.9.3
-pkgrel=3
+pkgrel=4
 pkgdesc='One-seat-per-process seatd and libseat with inherited connection support'
 arch=(x86_64)
 url='https://github.com/shaitan-machine1/seatd'
@@ -9,7 +9,7 @@ provides=('libseat.so')
 replaces=('libseat')
 depends=(glibc)
 makedepends=(git meson ninja)
-_commit=9bb3aabc62836bf432f8844debc8ec4ca63023ab
+_commit=7813c08e35cbff69069dbdecda97f7c7ff506cc2
 source=("git+ssh://git@github.com/shaitan-machine1/seatd.git#commit=$_commit")
 sha256sums=('SKIP')
 
