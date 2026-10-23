@@ -1,0 +1,12 @@
+pkgbase = dbus-s6-user
+	pkgdesc = Optional per-user D-Bus s6-rc service
+	pkgver = 0.1.0
+	pkgrel = 1
+	url = https://github.com/shaitan-machine1/decoupling-logind-artix-packages
+	arch = any
+	license = GPL-3.0-only
+	depends = dbus
+	depends = s6
+	depends = s6-user-service-manager
+
+pkgname = dbus-s6-user

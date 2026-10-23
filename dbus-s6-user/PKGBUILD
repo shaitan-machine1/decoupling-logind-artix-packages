@@ -1,0 +1,19 @@
+pkgname=dbus-s6-user
+pkgver=0.1.0
+pkgrel=1
+pkgdesc='Optional per-user D-Bus s6-rc service'
+arch=(any)
+url='https://github.com/shaitan-machine1/decoupling-logind-artix-packages'
+license=(GPL-3.0-only)
+depends=(dbus s6 s6-user-service-manager)
+source=()
+sha256sums=()
+
+package() {
+  install -d "$pkgdir/etc/s6/user/sv"
+  cp -a "$startdir/source/dbus" "$pkgdir/etc/s6/user/sv/"
+  install -Dm644 "$startdir/README.md" \
+    "$pkgdir/usr/share/doc/$pkgname/README.md"
+  install -Dm644 "$startdir/../LICENSE" \
+    "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

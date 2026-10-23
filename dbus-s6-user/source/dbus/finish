@@ -1,0 +1,3 @@
+#!/bin/sh
+: "${XDG_RUNTIME_DIR:?}"
+rm -f "$XDG_RUNTIME_DIR/bus"
