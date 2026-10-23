@@ -1,7 +1,7 @@
 pkgbase = loginctl
 	pkgdesc = Unified administration for the decoupled login stack
 	pkgver = 0.1.0
-	pkgrel = 2
+	pkgrel = 3
 	url = https://github.com/shaitan-machine1/loginctl
 	arch = x86_64
 	license = GPL-3.0-only
@@ -19,7 +19,6 @@ pkgbase = loginctl
 	optdepends = scoped: inspect and terminate managed scopes
 	optdepends = seat-udev: provide runtime seat integration policy
 	optdepends = sessiond: inspect and close managed sessions
-	conflicts = elogind
 	backup = etc/loginctl.conf
 	source = git+ssh://git@github.com/shaitan-machine1/loginctl.git#commit=902a6aaad68f1dfe38ea6761ea5d456b6a1b150f
 	sha256sums = SKIP

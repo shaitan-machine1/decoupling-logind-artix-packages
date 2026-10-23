@@ -1,6 +1,6 @@
 pkgname=loginctl
 pkgver=0.1.0
-pkgrel=2
+pkgrel=3
 pkgdesc='Unified administration for the decoupled login stack'
 arch=(x86_64)
 url='https://github.com/shaitan-machine1/loginctl'
@@ -13,7 +13,6 @@ optdepends=('aclad: administer seat-aware device ACL grants'
             'scoped: inspect and terminate managed scopes'
             'seat-udev: provide runtime seat integration policy'
             'sessiond: inspect and close managed sessions')
-conflicts=(elogind)
 backup=('etc/loginctl.conf')
 _commit=902a6aaad68f1dfe38ea6761ea5d456b6a1b150f
 source=("git+ssh://git@github.com/shaitan-machine1/loginctl.git#commit=$_commit")
