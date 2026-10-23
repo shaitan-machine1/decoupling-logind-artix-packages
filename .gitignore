@@ -4,6 +4,7 @@
 /aclad/aclad/
 /multiseat/multiseat/
 /multiseat/seatd/
+/loginctl/loginctl/
 /scoped/scoped/
 /s6-services/multiseat/
 /sddm/sddm/

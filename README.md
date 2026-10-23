@@ -1,82 +1,90 @@
 # decoupling-logind Artix packages
 
-A simple PKGBUILD monorepo for the Phase 1 decoupled login stack.
+PKGBUILDs for independently installable parts of the decoupled login stack.
+Private source repositories are pinned to exact commits and fetched over SSH,
+so builds require the normal user's GitHub SSH access.
 
-Packages:
+Current package outputs are:
 
-- `scoped`
-- `seat-udev`
-- `multiseat`
-- `sessiond`
-- `aclad`
-- the patched `seatd`/libseat fork, which serves one configured seat per
-  process
-- the patched Wayland-only `sddm` fork, which also owns its configuration,
-  PAM files and `sddm-srv`/`sddm-log` services
-- `decoupling-logind-pam`, the single common PAM session fragment
-- `decoupling-logind-s6`, which supplies the combined s6-rc service graph and
-  provides Artix's `init-logind`, `logind`, and `elogind` dependencies without
-  installing the elogind daemon or its D-Bus activation file
+- `init-logind-none`: empty `init-logind`/`elogind` compatibility provider;
+- `seat-udev`: udev seat integration policy;
+- `multiseat`: multiseatd, patched seatd, and patched libseat;
+- `scoped`, `sessiond`, and `aclad`: independent daemons and their owned PAM
+  modules where applicable;
+- `scoped-s6`, `sessiond-s6`, `aclad-s6`, `multiseat-s6`, and `sddm-s6`, all
+  produced by the `s6-services` split PKGBUILD;
+- `s6-user-service-manager`: replaceable sessiond user-manager implementation;
+- `dbus-s6-user` and `pipewire-s6-user`: optional, disabled user services;
+- `loginctl`: unified administration and explicit PAM activation;
+- `sddm`: the patched display-manager application.
 
-The source packages are pinned to exact Git commits. The repositories are
-private, so builds require GitHub SSH access. Build each directory with
-`makepkg`; install the resulting packages together before restoring Artix's
-`base` metapackage.
+There is no full-suite metapackage, combined service graph, separate final
+seatd package, or common PAM-fragment package.
 
-The service graph is:
-
-```text
-mount-cgroups + dbus-srv -> scoped-srv -> sessiond-srv -> aclad-srv
-udevadm + dbus-srv -> multiseatd-scan-srv -> multiseatd-srv
-all four ------------------------------------> sddm-srv
-```
-
-`multiseatd-scan-srv` is the nested `s6-svscan` on `/run/multiseatd/scandir`.
-multiseatd generates one immutable seatd service per udev seat under
-`/run/multiseatd/services/<seat>-<hash>` and attaches it to that scan
-directory, so each seat gets its own supervised `seatd` process, its own
-root-only socket and its own static device allowlist. Topology changes are
-applied only by `loginctl seat refresh`, which may terminate the graphical
-sessions of the affected seats.
-
-After package installation, synchronize and apply the Artix s6 repository:
+Build each selected directory as the normal user:
 
 ```sh
-sudo s6 repository sync
-sudo s6 set enable logind sddm-srv
-sudo s6 set apply
+cd PACKAGE_DIRECTORY
+makepkg --cleanbuild
 ```
 
-## Virtual terminals and udev rules
+Never remove Artix `base`. Before installation or reboot, verify:
 
-`sddm` is built with `-DSDDM_INITIAL_VT=7` because Artix runs gettys on
-tty1-tty6 and tty12, and SDDM cannot tell a used VT from a free one without
-logind (`Display::isTtyInUse()` asks logind and answers "free" when it is
-absent). Sessions are unaffected: they always allocate a fresh VT through
-`VT_OPENQRY`.
+```sh
+test -x /usr/bin/s6-init
+test "$(readlink -f /sbin/init)" = /usr/bin/s6-init
+pacman -Qo /usr/bin/init
+```
 
-`seat-udev` installs `71-seat.rules`/`73-seat-late.rules` and `aclad` installs
-`70-uaccess.rules`. These replace the files elogind used to provide. Without
-them no device carries a `seat`, `master-of-seat` or `uaccess` tag, so
-multiseatd publishes no seat, creates no socket, and nothing graphical can
-start. Installing the packages reloads udev's rules; devices that already
-exist need `udevadm trigger` or a reboot.
+## Service packages
 
-## PAM
+The split service packages preserve only real ordering:
 
-`decoupling-logind-pam` owns `/etc/pam.d/decoupling-logind-session`, which
-runs `pam_env`, then `pam_sessiond`, then `pam_aclad`. Include it exactly once
-per login path by adding `session include decoupling-logind-session` to
-`/etc/pam.d/system-login`; the SDDM greeter includes it directly because it
-does not go through `system-login`. See
-`/usr/share/doc/decoupling-logind-pam/README.md`.
+```text
+mount-cgroups + dbus-srv -> scoped-srv
+dbus-srv + scoped-srv    -> sessiond-srv
+dbus-srv + udevadm       -> aclad-srv
+udevadm + dbus-srv        -> multiseatd-scan-srv -> multiseatd-srv
+multiseatd-srv            -> sddm-srv
+```
 
-The SDDM PAM files deliberately contain neither `pam_elogind` nor
-`pam_systemd`. `libelogind` may remain installed for unrelated dynamically
-linked programs. The service package conflicts with and replaces `elogind`,
-while advertising compatibility provides for Artix packages such as polkit
-that carry a hard package dependency but are not used for session ownership.
+Installing one output does not install unrelated daemons. After installing a
+selected profile, synchronize the Artix s6 repository and enable only that
+profile's services.
 
-Do not reboot a machine on which `/sbin/init` is missing. Reinstall its selected
-init package (for this deployment, `s6-linux-init`) and verify the symlink
-before rebooting.
+Multiseatd generates one immutable seatd service per udev seat under
+`/run/multiseatd/services`. Topology changes are applied only by
+`loginctl seat refresh`, which previews changes and warns that refresh may
+terminate graphical sessions.
+
+## User services
+
+The generic manager compiles disposable state below `$XDG_RUNTIME_DIR/s6` from
+complete-directory overrides in this precedence order:
+
+```text
+$XDG_CONFIG_HOME/s6/sv
+/etc/s6/user/adminsv
+/etc/s6/user/sv
+```
+
+Optional D-Bus and PipeWire definitions are available but are not selected by
+the packaged empty `default` bundle. Use raw s6-rc commands against
+`$XDG_RUNTIME_DIR/s6/live` or create a home-owned `default` bundle.
+
+## PAM administration
+
+No package owns a common PAM include. `loginctl` owns `/etc/loginctl.conf` and
+can inspect, activate, or deactivate its exact marked block in the configured
+distribution PAM file:
+
+```sh
+loginctl pam status
+sudo loginctl pam activate
+sudo loginctl pam deactivate
+```
+
+`loginctl` never invokes `sudo`; mutation requires an already-root caller.
+Sessiond and aclad remain fail-open optional PAM participants. Distribution
+policy remains responsible for `pam_env` and any derivation of
+`DBUS_SESSION_BUS_ADDRESS` from `XDG_RUNTIME_DIR`.

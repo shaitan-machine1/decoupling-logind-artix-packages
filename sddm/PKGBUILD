@@ -1,12 +1,12 @@
 pkgname=sddm
 pkgver=0.21.0
-pkgrel=12
+pkgrel=13
 pkgdesc='QML Wayland display manager with multiseatd seat discovery'
 arch=(x86_64)
 url='https://github.com/shaitan-machine1/sddm'
 license=(GPL-2.0-or-later)
 provides=(display-manager)
-depends=(bash decoupling-logind-pam glibc libgcc libstdc++ libxau libxcb pam qt6-base
+depends=(bash glibc libgcc libstdc++ libxau libxcb pam pam_rundir qt6-base
          qt6-declarative seatd ttf-font weston xorg-xauth)
 makedepends=(cmake git ninja qt6-tools)
 optdepends=('sway: packaged example user session')

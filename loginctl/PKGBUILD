@@ -1,0 +1,38 @@
+pkgname=loginctl
+pkgver=0.1.0
+pkgrel=1
+pkgdesc='Unified administration for the decoupled login stack'
+arch=(x86_64)
+url='https://github.com/shaitan-machine1/loginctl'
+license=(GPL-3.0-only)
+depends=(dbus gcc-libs glibc libudev udev)
+makedepends=(cargo git rust)
+checkdepends=(pam)
+optdepends=('aclad: administer seat-aware device ACL grants'
+            'multiseat: inspect and refresh multiseatd seats'
+            'scoped: inspect and terminate managed scopes'
+            'seat-udev: provide runtime seat integration policy'
+            'sessiond: inspect and close managed sessions')
+conflicts=(elogind)
+backup=('etc/loginctl.conf')
+_commit=2ae71a4ab27b51523fbdb3a9c3a0b7de5a432146
+source=("git+ssh://git@github.com/shaitan-machine1/loginctl.git#commit=$_commit")
+sha256sums=('SKIP')
+
+build() {
+  cd "$srcdir/loginctl"
+  CARGO_TARGET_DIR=target cargo build --release --locked
+}
+
+check() {
+  cd "$srcdir/loginctl"
+  CARGO_TARGET_DIR=target cargo test --release --locked --all-targets
+  ./tests/pam-env.sh
+}
+
+package() {
+  cd "$srcdir/loginctl"
+  install -Dm755 target/release/loginctl "$pkgdir/usr/bin/loginctl"
+  install -Dm644 dist/loginctl.conf "$pkgdir/etc/loginctl.conf"
+  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

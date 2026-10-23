@@ -1,6 +1,6 @@
-# The greeter is not authenticated, but it is a real session owned by the
-# sddm user and needs seat ownership and device ACLs.
+# The greeter is not authenticated. pam_rundir supplies its XDG runtime
+# directory independently of sessiond and aclad.
 auth       required     pam_permit.so
 account    required     pam_permit.so
 password   required     pam_deny.so
-session    include      decoupling-logind-session
+session    required     pam_rundir.so
