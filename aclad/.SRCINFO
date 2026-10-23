@@ -1,7 +1,7 @@
 pkgbase = aclad
 	pkgdesc = Seat-aware PAM device ACL service
 	pkgver = 0.1.0
-	pkgrel = 5
+	pkgrel = 6
 	url = https://github.com/shaitan-machine1/aclad
 	arch = x86_64
 	license = GPL-3.0-only
@@ -15,7 +15,7 @@ pkgbase = aclad
 	depends = libudev
 	depends = pam
 	depends = seat-udev
-	source = git+ssh://git@github.com/shaitan-machine1/aclad.git#commit=3c74a00dcc429796d024dca05f0f27565644376e
+	source = git+ssh://git@github.com/shaitan-machine1/aclad.git#commit=98e55db813bd1bccc00daf6f1dd85d6b4974215c
 	sha256sums = SKIP
 
 pkgname = aclad

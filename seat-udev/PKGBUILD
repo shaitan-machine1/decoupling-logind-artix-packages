@@ -1,13 +1,13 @@
 pkgname=seat-udev
 pkgver=0.1.0
-pkgrel=1
+pkgrel=2
 pkgdesc='Seat device discovery and assignment runtime integration'
 arch=(any)
 url='https://github.com/shaitan-machine1/seat-udev'
 license=(GPL-3.0-only)
 depends=(udev)
 makedepends=(git)
-_commit=2ed5302cf3bded543d2da2b3ca6ce8f8366a69bc
+_commit=00126146f8e1ba1417ed4ec31541a079cff57f47
 source=("git+ssh://git@github.com/shaitan-machine1/seat-udev.git#commit=$_commit")
 sha256sums=('SKIP')
 

@@ -1,12 +1,12 @@
 pkgbase=s6-services
 pkgname=(scoped-s6 sessiond-s6 aclad-s6 multiseat-s6 sddm-s6)
 pkgver=0.1.0
-pkgrel=1
+pkgrel=2
 arch=(any)
 url='https://github.com/shaitan-machine1/decoupling-logind-artix-packages'
 license=(GPL-3.0-only)
 makedepends=(git)
-_multiseat_commit=74c00deff2e296be2d9d2f897f536b1559981175
+_multiseat_commit=21d7a8ff8611eafc6e21b5c9e18dc6393b315709
 source=("multiseat::git+ssh://git@github.com/shaitan-machine1/multiseat.git#commit=$_multiseat_commit")
 sha256sums=('SKIP')
 

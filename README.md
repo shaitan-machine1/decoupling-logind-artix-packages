@@ -36,7 +36,7 @@ multiseatd generates one immutable seatd service per udev seat under
 `/run/multiseatd/services/<seat>-<hash>` and attaches it to that scan
 directory, so each seat gets its own supervised `seatd` process, its own
 root-only socket and its own static device allowlist. Topology changes are
-applied only by `multiseatctl refresh`, which may terminate the graphical
+applied only by `loginctl seat refresh`, which may terminate the graphical
 sessions of the affected seats.
 
 After package installation, synchronize and apply the Artix s6 repository:

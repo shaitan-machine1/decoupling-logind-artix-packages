@@ -1,13 +1,13 @@
 pkgname=aclad
 pkgver=0.1.0
-pkgrel=5
+pkgrel=6
 pkgdesc='Seat-aware PAM device ACL service'
 arch=(x86_64)
 url='https://github.com/shaitan-machine1/aclad'
 license=(GPL-3.0-only)
 depends=(acl dbus gcc-libs glibc libudev pam seat-udev)
 makedepends=(cargo git rust)
-_commit=3c74a00dcc429796d024dca05f0f27565644376e
+_commit=98e55db813bd1bccc00daf6f1dd85d6b4974215c
 source=("git+ssh://git@github.com/shaitan-machine1/aclad.git#commit=$_commit")
 sha256sums=('SKIP')
 
@@ -24,7 +24,6 @@ check() {
 package() {
   cd "$srcdir/aclad"
   install -Dm755 target/release/aclad "$pkgdir/usr/bin/aclad"
-  install -Dm755 target/release/acladctl "$pkgdir/usr/bin/acladctl"
   install -Dm755 target/release/libpam_aclad.so \
     "$pkgdir/usr/lib/security/pam_aclad.so"
   install -Dm644 dist/dbus/org.decoupling.aclad1.conf \

@@ -1,6 +1,6 @@
 pkgname=multiseat
 pkgver=0.1.0
-pkgrel=1
+pkgrel=2
 pkgdesc='Seat topology orchestration with patched seatd and libseat'
 arch=(x86_64)
 url='https://github.com/shaitan-machine1/multiseat'
@@ -9,7 +9,7 @@ provides=('seatd=0.9.3' 'libseat.so')
 conflicts=('seatd' 'libseat')
 depends=(dbus gcc-libs glibc libudev s6 seat-udev)
 makedepends=(cargo git meson ninja rust)
-_multiseat_commit=74c00deff2e296be2d9d2f897f536b1559981175
+_multiseat_commit=21d7a8ff8611eafc6e21b5c9e18dc6393b315709
 _seatd_commit=7813c08e35cbff69069dbdecda97f7c7ff506cc2
 source=("multiseat::git+ssh://git@github.com/shaitan-machine1/multiseat.git#commit=$_multiseat_commit"
         "seatd::git+ssh://git@github.com/shaitan-machine1/seatd.git#commit=$_seatd_commit")

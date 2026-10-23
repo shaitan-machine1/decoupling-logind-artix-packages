@@ -1,7 +1,7 @@
 pkgbase = multiseat
 	pkgdesc = Seat topology orchestration with patched seatd and libseat
 	pkgver = 0.1.0
-	pkgrel = 1
+	pkgrel = 2
 	url = https://github.com/shaitan-machine1/multiseat
 	arch = x86_64
 	license = GPL-3.0-only
@@ -21,7 +21,7 @@ pkgbase = multiseat
 	provides = libseat.so
 	conflicts = seatd
 	conflicts = libseat
-	source = multiseat::git+ssh://git@github.com/shaitan-machine1/multiseat.git#commit=74c00deff2e296be2d9d2f897f536b1559981175
+	source = multiseat::git+ssh://git@github.com/shaitan-machine1/multiseat.git#commit=21d7a8ff8611eafc6e21b5c9e18dc6393b315709
 	source = seatd::git+ssh://git@github.com/shaitan-machine1/seatd.git#commit=7813c08e35cbff69069dbdecda97f7c7ff506cc2
 	sha256sums = SKIP
 	sha256sums = SKIP
