@@ -1,6 +1,6 @@
 pkgname=sessiond
 pkgver=0.1.0
-pkgrel=2
+pkgrel=3
 pkgdesc='PAM-integrated session lifecycle service'
 arch=(x86_64)
 url='https://github.com/shaitan-machine1/sessiond'
@@ -9,7 +9,7 @@ provides=('session-manager')
 depends=(dbus gcc-libs glibc pam scoped user-service-manager)
 makedepends=(cargo git rust)
 backup=('etc/sessiond.conf' 'etc/pam.d/sessiond-user')
-_commit=f6dce47ba9f8a1aaa3975943483d6870ee9b612a
+_commit=1beb4c2d929e0a98ce3294d8072d9578cf440946
 source=("git+ssh://git@github.com/shaitan-machine1/sessiond.git#commit=$_commit")
 sha256sums=('SKIP')
 
