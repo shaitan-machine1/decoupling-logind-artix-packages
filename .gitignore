@@ -5,6 +5,7 @@
 /multiseat/multiseat/
 /multiseat/seatd/
 /scoped/scoped/
+/s6-services/multiseat/
 /sddm/sddm/
 /seat-udev/seat-udev/
 /seatd/seatd/

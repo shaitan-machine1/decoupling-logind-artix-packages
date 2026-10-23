@@ -1,0 +1,51 @@
+pkgbase = s6-services
+	pkgver = 0.1.0
+	pkgrel = 1
+	url = https://github.com/shaitan-machine1/decoupling-logind-artix-packages
+	arch = any
+	license = GPL-3.0-only
+	makedepends = git
+	source = multiseat::git+ssh://git@github.com/shaitan-machine1/multiseat.git#commit=74c00deff2e296be2d9d2f897f536b1559981175
+	sha256sums = SKIP
+
+pkgname = scoped-s6
+	pkgdesc = s6-rc service definition for scoped
+	depends = dbus-s6
+	depends = s6-base
+	depends = s6-rc
+	depends = scoped
+
+pkgname = sessiond-s6
+	pkgdesc = s6-rc service definition for sessiond
+	depends = dbus-s6
+	depends = s6-base
+	depends = s6-rc
+	depends = scoped-s6
+	depends = sessiond
+
+pkgname = aclad-s6
+	pkgdesc = s6-rc service definition for aclad
+	depends = aclad
+	depends = dbus-s6
+	depends = s6-base
+	depends = s6-rc
+	depends = udev
+
+pkgname = multiseat-s6
+	pkgdesc = s6-rc service definitions for multiseatd and its seatd scanner
+	depends = dbus-s6
+	depends = multiseat
+	depends = s6-base
+	depends = s6-rc
+	depends = udev
+
+pkgname = sddm-s6
+	pkgdesc = s6-rc service definition for SDDM with the multiseatd backend
+	depends = dbus-s6
+	depends = multiseat-s6
+	depends = s6-base
+	depends = s6-rc
+	depends = sddm
+	depends = udev
+	provides = init-sddm
+	conflicts = init-sddm

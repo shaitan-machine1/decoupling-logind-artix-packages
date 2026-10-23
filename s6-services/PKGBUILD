@@ -1,0 +1,64 @@
+pkgbase=s6-services
+pkgname=(scoped-s6 sessiond-s6 aclad-s6 multiseat-s6 sddm-s6)
+pkgver=0.1.0
+pkgrel=1
+arch=(any)
+url='https://github.com/shaitan-machine1/decoupling-logind-artix-packages'
+license=(GPL-3.0-only)
+makedepends=(git)
+_multiseat_commit=74c00deff2e296be2d9d2f897f536b1559981175
+source=("multiseat::git+ssh://git@github.com/shaitan-machine1/multiseat.git#commit=$_multiseat_commit")
+sha256sums=('SKIP')
+
+_install_services() {
+  local service
+  install -d "$pkgdir/etc/s6/sv"
+  for service in "$@"; do
+    cp -a "$startdir/services/$service" "$pkgdir/etc/s6/sv/"
+  done
+  install -Dm644 "$startdir/../LICENSE" \
+    "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}
+
+package_scoped-s6() {
+  pkgdesc='s6-rc service definition for scoped'
+  depends=(dbus-s6 s6-base s6-rc scoped)
+
+  _install_services scoped-srv scoped-log
+}
+
+package_sessiond-s6() {
+  pkgdesc='s6-rc service definition for sessiond'
+  depends=(dbus-s6 s6-base s6-rc scoped-s6 sessiond)
+
+  _install_services sessiond-srv sessiond-log
+}
+
+package_aclad-s6() {
+  pkgdesc='s6-rc service definition for aclad'
+  depends=(aclad dbus-s6 s6-base s6-rc udev)
+
+  _install_services aclad-srv aclad-log
+}
+
+package_multiseat-s6() {
+  pkgdesc='s6-rc service definitions for multiseatd and its seatd scanner'
+  depends=(dbus-s6 multiseat s6-base s6-rc udev)
+
+  _install_services \
+    multiseatd-scan-srv multiseatd-scan-log \
+    multiseatd-srv multiseatd-log
+  install -Dm755 "$srcdir/multiseat/dist/s6/multiseatd-seatd-scan/run" \
+    "$pkgdir/etc/s6/sv/multiseatd-scan-srv/run"
+  install -Dm755 "$srcdir/multiseat/dist/s6/multiseatd/run" \
+    "$pkgdir/etc/s6/sv/multiseatd-srv/run"
+}
+
+package_sddm-s6() {
+  pkgdesc='s6-rc service definition for SDDM with the multiseatd backend'
+  depends=(dbus-s6 multiseat-s6 s6-base s6-rc sddm udev)
+  provides=(init-sddm)
+  conflicts=(init-sddm)
+
+  _install_services sddm-srv sddm-log
+}
