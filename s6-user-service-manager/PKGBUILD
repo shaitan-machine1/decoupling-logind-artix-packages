@@ -1,0 +1,24 @@
+pkgname=s6-user-service-manager
+pkgver=0.1.0
+pkgrel=1
+pkgdesc='Per-user s6-rc service manager for session managers'
+arch=(any)
+url='https://github.com/shaitan-machine1/decoupling-logind-artix-packages'
+license=(GPL-3.0-only)
+provides=('user-service-manager')
+depends=(coreutils findutils s6 s6-rc)
+source=(user-service-manager)
+sha256sums=('061a52d716a9b2a2e48f82217a22b5041fa0f987f22322a35f9bc2509c8c5879')
+
+package() {
+  install -Dm755 "$srcdir/user-service-manager" \
+    "$pkgdir/usr/libexec/user-service-manager"
+  install -Dm644 "$startdir/source/default/type" \
+    "$pkgdir/etc/s6/user/sv/default/type"
+  install -d "$pkgdir/etc/s6/user/sv/default/contents.d"
+  install -d "$pkgdir/etc/s6/user/adminsv"
+  install -Dm644 "$startdir/README.md" \
+    "$pkgdir/usr/share/doc/$pkgname/README.md"
+  install -Dm644 "$startdir/../LICENSE" \
+    "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}
