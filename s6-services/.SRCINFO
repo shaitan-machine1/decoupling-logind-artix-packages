@@ -1,6 +1,6 @@
 pkgbase = s6-services
 	pkgver = 0.1.0
-	pkgrel = 2
+	pkgrel = 3
 	url = https://github.com/shaitan-machine1/decoupling-logind-artix-packages
 	arch = any
 	license = GPL-3.0-only
@@ -49,3 +49,4 @@ pkgname = sddm-s6
 	depends = udev
 	provides = init-sddm
 	conflicts = init-sddm
+	backup = etc/sddm.conf.d/10-multiseatd.conf

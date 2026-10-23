@@ -1,17 +1,18 @@
 pkgname=sddm
 pkgver=0.21.0
 pkgrel=13
-pkgdesc='QML Wayland display manager with multiseatd seat discovery'
+pkgdesc='QML Wayland display manager with explicit seat backends'
 arch=(x86_64)
 url='https://github.com/shaitan-machine1/sddm'
 license=(GPL-2.0-or-later)
 provides=(display-manager)
-depends=(bash glibc libgcc libstdc++ libxau libxcb pam pam_rundir qt6-base
-         qt6-declarative seatd ttf-font weston xorg-xauth)
+depends=(bash dbus glibc libgcc libstdc++ libxau libxcb pam pam_rundir qt6-base
+         qt6-declarative ttf-font weston xorg-xauth)
 makedepends=(cmake git ninja qt6-tools)
-optdepends=('sway: packaged example user session')
-backup=('etc/pam.d/sddm' 'etc/pam.d/sddm-autologin' 'etc/pam.d/sddm-greeter'
-        'etc/sddm.conf.d/10-decoupling.conf')
+optdepends=('elogind: provide the logind seat backend'
+            'multiseat: provide the multiseatd backend and bundled seatd/libseat'
+            'sway: packaged example user session')
+backup=('etc/pam.d/sddm' 'etc/pam.d/sddm-autologin' 'etc/pam.d/sddm-greeter')
 _commit=73edeef4320212c2507365a4af3c46f49de789b4
 source=("git+ssh://git@github.com/shaitan-machine1/sddm.git#commit=$_commit"
         sddm.sysusers
@@ -43,9 +44,7 @@ check() {
 package() {
   DESTDIR="$pkgdir" cmake --install build
 
-  # Runtime policy belongs to the distribution package, not to the fork.
-  install -Dm644 "$startdir/10-decoupling.conf" \
-    "$pkgdir/etc/sddm.conf.d/10-decoupling.conf"
+  # PAM and account policy belong to the distribution package, not the fork.
   install -Dm644 "$startdir/sddm.pam" "$pkgdir/etc/pam.d/sddm"
   install -Dm644 "$startdir/sddm-autologin.pam" "$pkgdir/etc/pam.d/sddm-autologin"
   install -Dm644 "$startdir/sddm-greeter.pam" "$pkgdir/etc/pam.d/sddm-greeter"

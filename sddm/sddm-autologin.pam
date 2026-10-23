@@ -1,5 +1,5 @@
-# Autologin skips authentication but still opens a full local session, so the
-# common session graph (and with it the decoupled stack) applies unchanged.
+# Autologin skips authentication but still opens the normal Artix local-session
+# policy. Optional decoupled-stack modules are activated there by loginctl.
 auth       required     pam_env.so
 auth       required     pam_shells.so
 auth       requisite    pam_nologin.so
