@@ -1,26 +1,28 @@
 pkgname=sessiond
 pkgver=0.1.0
-pkgrel=5
-pkgdesc='PAM-integrated session lifecycle and per-user service manager'
+pkgrel=1
+pkgdesc='PAM-integrated session lifecycle service'
 arch=(x86_64)
 url='https://github.com/shaitan-machine1/sessiond'
 license=(GPL-3.0-only)
-depends=(coreutils dbus gcc-libs glibc pam s6-base s6-rc scoped)
+provides=('session-manager')
+depends=(dbus gcc-libs glibc pam scoped user-service-manager)
 makedepends=(cargo git rust)
-backup=('etc/sessiond/sessiond.toml' 'etc/pam.d/sessiond-user')
-install=sessiond.install
-_commit=f09a420dcc4fe80579913835faac400fa6098beb
+backup=('etc/sessiond.conf' 'etc/pam.d/sessiond-user')
+_commit=170cbc4e0d445b420d0e04fb7273c93f3bd53cf3
 source=("git+ssh://git@github.com/shaitan-machine1/sessiond.git#commit=$_commit")
 sha256sums=('SKIP')
 
 build() {
   cd "$srcdir/sessiond"
-  CARGO_TARGET_DIR=target cargo build --release --locked --workspace
+  SESSIOND_USER_SERVICE_MANAGER=/usr/libexec/user-service-manager \
+    CARGO_TARGET_DIR=target cargo build --release --locked --workspace
 }
 
 check() {
   cd "$srcdir/sessiond"
-  CARGO_TARGET_DIR=target cargo test --release --locked --workspace
+  SESSIOND_USER_SERVICE_MANAGER=/usr/libexec/user-service-manager \
+    CARGO_TARGET_DIR=target cargo test --release --locked --workspace
 }
 
 package() {
@@ -31,13 +33,9 @@ package() {
     "$pkgdir/usr/libexec/sessiond/sessiond-user-launcher"
   install -Dm755 target/release/libpam_sessiond.so \
     "$pkgdir/usr/lib/security/pam_sessiond.so"
-  install -Dm755 dist/libexec/user-service-manager \
-    "$pkgdir/usr/libexec/sessiond/user-service-manager"
-  install -Dm644 dist/sessiond.toml "$pkgdir/etc/sessiond/sessiond.toml"
+  install -Dm644 dist/sessiond.conf "$pkgdir/etc/sessiond.conf"
   install -Dm644 dist/pam/sessiond-user "$pkgdir/etc/pam.d/sessiond-user"
   install -Dm644 dist/dbus/org.decoupling.sessiond1.conf \
     "$pkgdir/usr/share/dbus-1/system.d/org.decoupling.sessiond1.conf"
-  install -d "$pkgdir/usr/lib/sessiond/s6-rc"
-  cp -a dist/s6-user/source "$pkgdir/usr/lib/sessiond/s6-rc/"
   install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
 }
