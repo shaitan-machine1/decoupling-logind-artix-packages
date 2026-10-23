@@ -1,0 +1,15 @@
+pkgbase = init-logind-none
+	pkgdesc = Empty init-logind and elogind compatibility provider
+	pkgver = 1
+	pkgrel = 1
+	url = https://github.com/shaitan-machine1/decoupling-logind-artix-packages
+	arch = any
+	license = GPL-3.0-only
+	provides = init-logind
+	provides = elogind
+	conflicts = init-logind
+	conflicts = elogind
+	conflicts = elogind-s6
+	conflicts = elogind-dinit
+
+pkgname = init-logind-none

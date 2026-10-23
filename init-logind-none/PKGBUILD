@@ -1,0 +1,16 @@
+pkgname=init-logind-none
+pkgver=1
+pkgrel=1
+pkgdesc='Empty init-logind and elogind compatibility provider'
+arch=(any)
+url='https://github.com/shaitan-machine1/decoupling-logind-artix-packages'
+license=(GPL-3.0-only)
+provides=('init-logind' 'elogind')
+conflicts=('init-logind' 'elogind' 'elogind-s6' 'elogind-dinit')
+source=()
+sha256sums=()
+
+package() {
+  install -Dm644 "$startdir/../LICENSE" \
+    "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

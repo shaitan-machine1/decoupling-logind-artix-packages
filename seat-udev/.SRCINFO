@@ -1,17 +1,13 @@
 pkgbase = seat-udev
-	pkgdesc = Udev seat model and persistent seat assignment utility
+	pkgdesc = Seat device discovery and assignment runtime integration
 	pkgver = 0.1.0
-	pkgrel = 2
+	pkgrel = 1
 	url = https://github.com/shaitan-machine1/seat-udev
-	arch = x86_64
+	arch = any
 	license = GPL-3.0-only
-	makedepends = cargo
 	makedepends = git
-	makedepends = rust
-	depends = gcc-libs
-	depends = glibc
-	depends = libudev
-	source = git+ssh://git@github.com/shaitan-machine1/seat-udev.git#commit=0afdc63a928c21d4064bf917c8a04f9d8e358f74
+	depends = udev
+	source = git+ssh://git@github.com/shaitan-machine1/seat-udev.git#commit=2ed5302cf3bded543d2da2b3ca6ce8f8366a69bc
 	sha256sums = SKIP
 
 pkgname = seat-udev

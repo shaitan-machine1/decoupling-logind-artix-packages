@@ -1,29 +1,18 @@
 pkgname=seat-udev
 pkgver=0.1.0
-pkgrel=3
-pkgdesc='Udev seat model and persistent seat assignment utility'
-arch=(x86_64)
+pkgrel=1
+pkgdesc='Seat device discovery and assignment runtime integration'
+arch=(any)
 url='https://github.com/shaitan-machine1/seat-udev'
 license=(GPL-3.0-only)
-depends=(gcc-libs glibc libudev)
-makedepends=(cargo git rust)
+depends=(udev)
+makedepends=(git)
 _commit=2ed5302cf3bded543d2da2b3ca6ce8f8366a69bc
 source=("git+ssh://git@github.com/shaitan-machine1/seat-udev.git#commit=$_commit")
 sha256sums=('SKIP')
 
-build() {
-  cd "$srcdir/seat-udev"
-  CARGO_TARGET_DIR=target cargo build --release --locked --workspace
-}
-
-check() {
-  cd "$srcdir/seat-udev"
-  CARGO_TARGET_DIR=target cargo test --release --locked --workspace
-}
-
 package() {
   cd "$srcdir/seat-udev"
-  install -Dm755 target/release/seatctl "$pkgdir/usr/bin/seatctl"
   install -Dm644 dist/udev/71-seat.rules \
     "$pkgdir/usr/lib/udev/rules.d/71-seat.rules"
   install -Dm644 dist/udev/73-seat-late.rules \

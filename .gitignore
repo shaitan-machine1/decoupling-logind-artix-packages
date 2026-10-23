@@ -3,6 +3,7 @@
 **/*.pkg.tar.*
 /aclad/aclad/
 /multiseat/multiseat/
+/multiseat/seatd/
 /scoped/scoped/
 /sddm/sddm/
 /seat-udev/seat-udev/
