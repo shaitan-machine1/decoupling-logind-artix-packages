@@ -1,54 +1,37 @@
 pkgname=multiseat
-pkgver=0.1.0
-pkgrel=2
-pkgdesc='Seat topology orchestration with patched seatd and libseat'
+pkgver=0.2.2
+pkgrel=1
+pkgdesc='Seat topology, embedded seatd actors and direct-access UID leases'
 arch=(x86_64)
 url='https://github.com/shaitan-machine1/multiseat'
 license=(GPL-3.0-only MIT)
-provides=('seatd=0.9.3' 'libseat.so')
-conflicts=('seatd' 'libseat')
-depends=(dbus gcc-libs glibc libudev s6 seat-udev)
-makedepends=(cargo git meson ninja rust)
-_multiseat_commit=21d7a8ff8611eafc6e21b5c9e18dc6393b315709
-_seatd_commit=7813c08e35cbff69069dbdecda97f7c7ff506cc2
-source=("multiseat::git+ssh://git@github.com/shaitan-machine1/multiseat.git#commit=$_multiseat_commit"
-        "seatd::git+ssh://git@github.com/shaitan-machine1/seatd.git#commit=$_seatd_commit")
-sha256sums=('SKIP'
-            'SKIP')
+depends=(dbus gcc-libs glibc libudev libseat)
+makedepends=(cargo git rust)
+_commit=f23ca47eb0d6c58b679636915457bdb589ac174a
+source=("git+ssh://git@github.com/shaitan-machine1/multiseat.git#commit=$_commit")
+sha256sums=('SKIP')
 
 build() {
-  meson setup build-seatd "$srcdir/seatd" \
-    --prefix=/usr \
-    --buildtype=plain \
-    -Dexamples=disabled \
-    -Dserver=enabled \
-    -Dlibseat-seatd=enabled \
-    -Dlibseat-logind=disabled \
-    -Dlibseat-builtin=disabled \
-    -Dman-pages=disabled
-  meson compile -C build-seatd
-
   cd "$srcdir/multiseat"
   CARGO_TARGET_DIR=target cargo build --release --locked --workspace
 }
 
 check() {
-  meson test -C build-seatd --print-errorlogs
-
   cd "$srcdir/multiseat"
   CARGO_TARGET_DIR=target cargo test --release --locked --workspace
 }
 
 package() {
-  DESTDIR="$pkgdir" meson install -C build-seatd
-
   cd "$srcdir/multiseat"
   install -Dm755 target/release/multiseatd "$pkgdir/usr/bin/multiseatd"
   install -Dm755 target/release/seat-launch "$pkgdir/usr/bin/seat-launch"
   install -Dm644 dist/dbus/org.decoupling.multiseatd1.conf \
     "$pkgdir/usr/share/dbus-1/system.d/org.decoupling.multiseatd1.conf"
+  for rule in 70-uaccess.rules 71-seat.rules 73-seat-late.rules; do
+    install -Dm644 "dist/udev/$rule" "$pkgdir/usr/lib/udev/rules.d/$rule"
+  done
   install -Dm644 LICENSE \
     "$pkgdir/usr/share/licenses/$pkgname/LICENSE.multiseat"
-  install -Dm644 "$srcdir/seatd/LICENSE" \
-    "$pkgdir/usr/share/licenses/$pkgname/LICENSE.seatd"
+  install -Dm644 crates/seat-udev/LICENSE \
+    "$pkgdir/usr/share/licenses/$pkgname/LICENSE.seat-udev"
 }

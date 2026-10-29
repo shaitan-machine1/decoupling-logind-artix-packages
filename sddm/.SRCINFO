@@ -1,7 +1,7 @@
 pkgbase = sddm
 	pkgdesc = QML Wayland display manager with explicit seat backends
 	pkgver = 0.21.0
-	pkgrel = 13
+	pkgrel = 14
 	url = https://github.com/shaitan-machine1/sddm
 	arch = x86_64
 	license = GPL-2.0-or-later
@@ -24,13 +24,13 @@ pkgbase = sddm
 	depends = weston
 	depends = xorg-xauth
 	optdepends = elogind: provide the logind seat backend
-	optdepends = multiseat: provide the multiseatd backend and bundled seatd/libseat
+	optdepends = multiseat: provide the multiseatd backend
 	optdepends = sway: packaged example user session
 	provides = display-manager
 	backup = etc/pam.d/sddm
 	backup = etc/pam.d/sddm-autologin
 	backup = etc/pam.d/sddm-greeter
-	source = git+ssh://git@github.com/shaitan-machine1/sddm.git#commit=73edeef4320212c2507365a4af3c46f49de789b4
+	source = git+ssh://git@github.com/shaitan-machine1/sddm.git#commit=90b4ac1f12c0ac953d49529b4daf36489507976e
 	source = sddm.sysusers
 	source = sddm.tmpfiles
 	sha256sums = SKIP

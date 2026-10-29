@@ -2,24 +2,32 @@
 
 PKGBUILDs for independently installable parts of the decoupled login stack.
 Private source repositories are pinned to exact commits and fetched over SSH,
-so builds require the normal user's GitHub SSH access.
+so builds require the normal user's GitHub SSH access. The public Git
+dependencies of `loginctl` are fetched from GitHub during `prepare()`.
 
 Current package outputs are:
 
 - `init-logind-none`: empty `init-logind`/`elogind` compatibility provider;
-- `seat-udev`: udev seat integration policy;
-- `multiseat`: multiseatd, patched seatd, and patched libseat;
-- `scoped`, `sessiond`, and `aclad`: independent daemons and their owned PAM
-  modules where applicable;
-- `scoped-s6`, `sessiond-s6`, `aclad-s6`, `multiseat-s6`, and `sddm-s6`, all
-  produced by the `s6-services` split PKGBUILD;
+- `libseat`: patched C libseat from the seatd fork, library only;
+- `multiseat`: `multiseatd`, `seat-launch`, the udev seat/access policy and the
+  root-only D-Bus policy;
+- `sessiond`: session lifecycle daemon, `pam_sessiond.so` and the user-manager
+  launcher;
+- `sessiond-s6`, `multiseat-s6`, and `sddm-s6`, all produced by the
+  `s6-services` split PKGBUILD;
 - `s6-user-service-manager`: replaceable sessiond user-manager implementation;
 - `dbus-s6-user` and `pipewire-s6-user`: optional, disabled user services;
 - `loginctl`: unified administration and explicit PAM activation;
 - `sddm`: the patched display-manager application.
 
-There is no full-suite metapackage, combined service graph, separate final
-seatd package, or common PAM-fragment package.
+There is no full-suite metapackage, combined service graph, ACL daemon, scope
+daemon, separate seat-udev package, or common PAM-fragment package.
+
+`libseat` provides `seatd` and `libseat.so` and conflicts with the distribution
+`seatd` package because both own the library. `multiseat` depends on `libseat`
+instead of providing or conflicting with either. There is no standalone
+`seatd` server: clients receive an inherited server descriptor from
+`multiseatd` over D-Bus.
 
 Build each selected directory as the normal user:
 
@@ -36,26 +44,40 @@ test "$(readlink -f /sbin/init)" = /usr/bin/s6-init
 pacman -Qo /usr/bin/init
 ```
 
+## Device policy
+
+`multiseat` owns the complete ordered udev rule set:
+
+```text
+70-uaccess.rules    tag devices whose access follows the active session
+71-seat.rules       make uaccess and seat devices seat members
+73-seat-late.rules  resolve ID_SEAT and seat tags
+```
+
+`multiseatd` is the sole direct-access ACL owner. Brokered DRM/evdev/hidraw
+devices are available only through its embedded seatd actors; remaining
+`uaccess` devices get UID ACLs from live client leases. Do not install or run
+`aclad` alongside it.
+
 ## Service packages
 
 The split service packages preserve only real ordering:
 
 ```text
-mount-cgroups + dbus-srv -> scoped-srv
-dbus-srv + scoped-srv    -> sessiond-srv
-dbus-srv + udevadm       -> aclad-srv
-udevadm + dbus-srv        -> multiseatd-scan-srv -> multiseatd-srv
-multiseatd-srv            -> sddm-srv
+dbus-srv + mount-cgroups -> sessiond-srv
+dbus-srv + udevadm       -> multiseatd-srv
+multiseatd-srv           -> sddm-srv
 ```
 
 Installing one output does not install unrelated daemons. After installing a
 selected profile, synchronize the Artix s6 repository and enable only that
 profile's services.
 
-Multiseatd generates one immutable seatd service per udev seat under
-`/run/multiseatd/services`. Topology changes are applied only by
-`loginctl seat refresh`, which previews changes and warns that refresh may
-terminate graphical sessions.
+`multiseatd` discovers seats continuously from udev and runs one in-process
+seatd actor per seat. There are no per-seat services, no seat allowlist file
+and no `seat refresh` command. Seat clients are created and revoked by root
+over D-Bus, and `loginctl seat client list|revoke` is the administrative
+interface.
 
 ## User services
 
@@ -85,6 +107,7 @@ sudo loginctl pam deactivate
 ```
 
 `loginctl` never invokes `sudo`; mutation requires an already-root caller.
-Sessiond and aclad remain fail-open optional PAM participants. Distribution
-policy remains responsible for `pam_env` and any derivation of
+Sessiond is the only fail-open optional PAM participant. Activation also
+recognises and replaces the exact historical block that named `pam_aclad.so`.
+Distribution policy remains responsible for `pam_env` and any derivation of
 `DBUS_SESSION_BUS_ADDRESS` from `XDG_RUNTIME_DIR`.

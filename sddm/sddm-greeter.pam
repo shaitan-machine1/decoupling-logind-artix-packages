@@ -1,5 +1,5 @@
 # The greeter is not authenticated. pam_rundir supplies its XDG runtime
-# directory independently of sessiond and aclad.
+# directory independently of sessiond.
 auth       required     pam_permit.so
 account    required     pam_permit.so
 password   required     pam_deny.so

@@ -1,0 +1,37 @@
+pkgname=libseat
+pkgver=0.9.3
+pkgrel=1
+pkgdesc='Seat management library with inherited server connection support'
+arch=(x86_64)
+url='https://github.com/shaitan-machine1/seatd'
+license=(MIT)
+provides=('libseat.so' 'seatd=0.9.3')
+conflicts=('seatd')
+depends=(glibc)
+makedepends=(git meson ninja)
+_commit=7813c08e35cbff69069dbdecda97f7c7ff506cc2
+source=("libseat::git+ssh://git@github.com/shaitan-machine1/seatd.git#commit=$_commit")
+sha256sums=('SKIP')
+
+build() {
+  meson setup build "$srcdir/libseat" \
+    --prefix=/usr \
+    --buildtype=plain \
+    -Dexamples=disabled \
+    -Dserver=disabled \
+    -Dlibseat-seatd=enabled \
+    -Dlibseat-logind=disabled \
+    -Dlibseat-builtin=disabled \
+    -Dman-pages=disabled
+  meson compile -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
+}
+
+package() {
+  DESTDIR="$pkgdir" meson install -C build
+  install -Dm644 "$srcdir/libseat/LICENSE" \
+    "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

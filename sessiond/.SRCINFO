@@ -1,7 +1,7 @@
 pkgbase = sessiond
 	pkgdesc = PAM-integrated session lifecycle service
 	pkgver = 0.1.0
-	pkgrel = 3
+	pkgrel = 4
 	url = https://github.com/shaitan-machine1/sessiond
 	arch = x86_64
 	license = GPL-3.0-only
@@ -12,12 +12,11 @@ pkgbase = sessiond
 	depends = gcc-libs
 	depends = glibc
 	depends = pam
-	depends = scoped
 	depends = user-service-manager
 	provides = session-manager
 	backup = etc/sessiond.conf
 	backup = etc/pam.d/sessiond-user
-	source = git+ssh://git@github.com/shaitan-machine1/sessiond.git#commit=1beb4c2d929e0a98ce3294d8072d9578cf440946
+	source = git+ssh://git@github.com/shaitan-machine1/sessiond.git#commit=27ef72702556cf1018888eac25aaf655a6efd743
 	sha256sums = SKIP
 
 pkgname = sessiond
