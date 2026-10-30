@@ -1,6 +1,6 @@
 pkgname=sddm
 pkgver=0.21.0
-pkgrel=15
+pkgrel=16
 pkgdesc='QML Wayland display manager with explicit seat backends'
 arch=(x86_64)
 url='https://github.com/shaitan-machine1/sddm'
@@ -13,7 +13,7 @@ optdepends=('elogind: provide the logind seat backend'
             'multiseat: provide the multiseatd backend'
             'sway: packaged example user session')
 backup=('etc/pam.d/sddm' 'etc/pam.d/sddm-autologin' 'etc/pam.d/sddm-greeter')
-_commit=90b4ac1f12c0ac953d49529b4daf36489507976e
+_commit=b2a713d1a5241dd8d2234bee72b500f3421b6aa9
 source=("git+https://github.com/shaitan-machine1/sddm.git#commit=$_commit"
         sddm.sysusers
         sddm.tmpfiles)
