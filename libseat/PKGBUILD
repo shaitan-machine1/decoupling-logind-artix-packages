@@ -10,7 +10,7 @@ conflicts=('seatd')
 depends=(glibc)
 makedepends=(git meson ninja)
 _commit=7813c08e35cbff69069dbdecda97f7c7ff506cc2
-source=("libseat::git+ssh://git@github.com/shaitan-machine1/seatd.git#commit=$_commit")
+source=("libseat::git+https://github.com/shaitan-machine1/seatd.git#commit=$_commit")
 sha256sums=('SKIP')
 
 build() {

@@ -12,7 +12,7 @@ pkgbase = libseat
 	provides = libseat.so
 	provides = seatd=0.9.3
 	conflicts = seatd
-	source = libseat::git+ssh://git@github.com/shaitan-machine1/seatd.git#commit=7813c08e35cbff69069dbdecda97f7c7ff506cc2
+	source = libseat::git+https://github.com/shaitan-machine1/seatd.git#commit=7813c08e35cbff69069dbdecda97f7c7ff506cc2
 	sha256sums = SKIP
 
 pkgname = libseat

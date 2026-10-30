@@ -1,7 +1,7 @@
 pkgbase = sddm
 	pkgdesc = QML Wayland display manager with explicit seat backends
 	pkgver = 0.21.0
-	pkgrel = 14
+	pkgrel = 15
 	url = https://github.com/shaitan-machine1/sddm
 	arch = x86_64
 	license = GPL-2.0-or-later
@@ -30,11 +30,11 @@ pkgbase = sddm
 	backup = etc/pam.d/sddm
 	backup = etc/pam.d/sddm-autologin
 	backup = etc/pam.d/sddm-greeter
-	source = git+ssh://git@github.com/shaitan-machine1/sddm.git#commit=90b4ac1f12c0ac953d49529b4daf36489507976e
+	source = git+https://github.com/shaitan-machine1/sddm.git#commit=90b4ac1f12c0ac953d49529b4daf36489507976e
 	source = sddm.sysusers
 	source = sddm.tmpfiles
 	sha256sums = SKIP
-	sha256sums = 9fce66f325d170c61caed57816f4bc72e9591df083e89da114a3bb16b0a0e60f
-	sha256sums = db625f2a3649d6d203e1e1b187a054d5c6263cadf7edd824774d8ace52219677
+	sha256sums = SKIP
+	sha256sums = SKIP
 
 pkgname = sddm

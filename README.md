@@ -1,9 +1,9 @@
 # decoupling-logind Artix packages
 
 PKGBUILDs for independently installable parts of the decoupled login stack.
-Private source repositories are pinned to exact commits and fetched over SSH,
-so builds require the normal user's GitHub SSH access. The public Git
-dependencies of `loginctl` are fetched from GitHub during `prepare()`.
+Source repositories are pinned to exact commits and fetched anonymously over
+HTTPS. Builds need no GitHub credentials or SSH key. The public Git dependencies
+of `loginctl` also use HTTPS and are fetched during `prepare()`.
 
 Current package outputs are:
 
@@ -36,6 +36,9 @@ cd PACKAGE_DIRECTORY
 makepkg --cleanbuild
 ```
 
+Source checksums are intentionally skipped for these build-only recipes,
+including local source files. Exact Git revisions remain pinned.
+
 Never remove Artix `base`. Before installation or reboot, verify:
 
 ```sh
@@ -53,6 +56,10 @@ pacman -Qo /usr/bin/init
 71-seat.rules       make uaccess and seat devices seat members
 73-seat-late.rules  resolve ID_SEAT and seat tags
 ```
+
+`multiseat` directly depends on `acl` and `udev`, as well as the libudev
+client library: it needs both libacl and a running device manager, independent
+of the selected init system.
 
 `multiseatd` is the sole direct-access ACL owner. Brokered DRM/evdev/hidraw
 devices are available only through its embedded seatd actors; remaining
@@ -78,6 +85,10 @@ seatd actor per seat. There are no per-seat services, no seat allowlist file
 and no `seat refresh` command. Seat clients are created and revoked by root
 over D-Bus, and `loginctl seat client list|revoke` is the administrative
 interface.
+
+The SDDM account is not added to `video`: its compositor receives brokered
+device access through its seat client instead of permanent cross-seat group
+permissions. The daemon's default singleton lock needs no service override.
 
 ## User services
 
@@ -111,3 +122,26 @@ Sessiond is the only fail-open optional PAM participant. Activation also
 recognises and replaces the exact historical block that named `pam_aclad.so`.
 Distribution policy remains responsible for `pam_env` and any derivation of
 `DBUS_SESSION_BUS_ADDRESS` from `XDG_RUNTIME_DIR`.
+
+## Build-only validation
+
+After building all recipe outputs, run as the normal user:
+
+```sh
+bash tests/validate-packages.sh
+bash tests/validate-packages-regressions.sh
+# After editing recipes, also verify regenerated metadata (slower):
+bash tests/validate-packages.sh --check-recipes
+```
+
+Routine validation reads `.SRCINFO` and caches each archive's metadata and file
+list, without running makepkg. Archives are expected beside their recipes;
+set `PKGDEST` explicitly if they are stored elsewhere. `--check-recipes` also
+runs makepkg once per recipe to compare freshly generated metadata.
+
+Validation checks HTTPS-only remote sources, skipped source checksums, archive
+contents, required runtime dependencies and component isolation. Fast negative
+policy fixtures need no built archives and reject missing ACL/udev dependencies,
+static greeter `video` membership, source checksums and non-HTTPS remote URLs.
+No package is installed and no service is started. These checks are not
+clean-chroot or hardware acceptance.

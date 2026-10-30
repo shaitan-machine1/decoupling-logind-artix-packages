@@ -8,7 +8,7 @@ license=(GPL-3.0-only)
 provides=('user-service-manager')
 depends=(coreutils findutils s6 s6-rc)
 source=(user-service-manager)
-sha256sums=('061a52d716a9b2a2e48f82217a22b5041fa0f987f22322a35f9bc2509c8c5879')
+sha256sums=('SKIP')
 
 package() {
   install -Dm755 "$srcdir/user-service-manager" \

@@ -1,14 +1,14 @@
 pkgname=multiseat
-pkgver=0.2.2
+pkgver=0.2.3
 pkgrel=1
 pkgdesc='Seat topology, embedded seatd actors and direct-access UID leases'
 arch=(x86_64)
 url='https://github.com/shaitan-machine1/multiseat'
 license=(GPL-3.0-only MIT)
-depends=(dbus gcc-libs glibc libudev libseat)
+depends=(acl dbus gcc-libs glibc libudev libseat udev)
 makedepends=(cargo git rust)
-_commit=f23ca47eb0d6c58b679636915457bdb589ac174a
-source=("git+ssh://git@github.com/shaitan-machine1/multiseat.git#commit=$_commit")
+_commit=d8c1dfa6bcc6c384e5b2b06d331024da3b976c12
+source=("git+https://github.com/shaitan-machine1/multiseat.git#commit=$_commit")
 sha256sums=('SKIP')
 
 build() {

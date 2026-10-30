@@ -1,21 +1,66 @@
 #!/bin/bash
 set -euo pipefail
 root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+source "$root/tests/package-policy.sh"
+case ${1:-} in
+  '') check_recipes=0 ;;
+  --check-recipes) check_recipes=1 ;;
+  *) echo "usage: $0 [--check-recipes]" >&2; exit 64 ;;
+esac
+shopt -s nullglob
+declare -A versions arches metadata_cache contents_cache
 package() {
-  local dir=$1 name=$2
-  (cd "$root/$dir" && makepkg --packagelist) | grep "/${name}-" | grep -v -- '-debug-' | head -1
+  local dir=$1 name=$2 candidate
+  local -a candidates=()
+  for candidate in "${PKGDEST:-$root/$dir}/$name-${versions[$dir]}-${arches[$dir]}.pkg.tar"*; do
+    [[ $candidate == *.sig ]] || candidates+=("$candidate")
+  done
+  if (( ${#candidates[@]} != 1 )); then
+    echo "expected one built archive for $name; set PKGDEST for a custom output directory" >&2
+    return 1
+  fi
+  printf '%s\n' "${candidates[0]}"
 }
-info() { bsdtar -xOf "$1" .PKGINFO; }
-has() { info "$1" | grep -Fqx "$2"; }
-lacks() { ! info "$1" | grep -Eq "$2"; }
-files_lack() { ! bsdtar -tf "$1" | grep -Eq "$2"; }
+cache_archive() {
+  local archive=$1
+  test -f "$archive"
+  metadata_cache[$archive]=$(bsdtar -xOf "$archive" .PKGINFO)
+  contents_cache[$archive]=$(bsdtar -tf "$archive")
+}
+info() { printf '%s\n' "${metadata_cache[$1]}"; }
+has() { grep -Fqx "$2" <<<"${metadata_cache[$1]}"; }
+lacks() { ! grep -Eq "$2" <<<"${metadata_cache[$1]}"; }
+files_lack() { ! grep -Eq "$2" <<<"${contents_cache[$1]}"; }
 files_have() {
   local archive=$1 path
   shift
   for path in "$@"; do
-    bsdtar -tf "$archive" | grep -Fqx "$path"
+    grep -Fqx "$path" <<<"${contents_cache[$archive]}"
   done
 }
+
+# Routine checks read committed metadata without starting makepkg. Regeneration
+# is optional because makepkg configuration startup is comparatively expensive.
+for recipe in "$root"/*/PKGBUILD; do
+  directory=${recipe%/PKGBUILD}
+  metadata=$(<"$directory/.SRCINFO")
+  if (( check_recipes )); then
+    generated=$(cd "$directory" && makepkg --printsrcinfo)
+    diff -u "$directory/.SRCINFO" <(printf '%s\n' "$generated")
+  fi
+  check_source_policy "$metadata" "$recipe"
+  version= release= arch=
+  while read -r key _ value; do
+    case $key in
+      pkgver) version=$value ;;
+      pkgrel) release=$value ;;
+      arch) arch=$value ;;
+    esac
+  done <<<"$metadata"
+  test -n "$version" && test -n "$release" && test -n "$arch"
+  versions[${directory##*/}]=$version-$release
+  arches[${directory##*/}]=$arch
+done
 
 init=$(package init-logind-none init-logind-none)
 libseat=$(package libseat libseat)
@@ -28,7 +73,7 @@ loginctl=$(package loginctl loginctl)
 sddm=$(package sddm sddm)
 for archive in "$init" "$libseat" "$multi" "$session" "$manager" \
                "$dbus_user" "$pipewire_user" "$loginctl" "$sddm"; do
-  test -f "$archive"
+  cache_archive "$archive"
 done
 
 has "$init" 'provides = init-logind'
@@ -41,11 +86,12 @@ files_lack "$init" '^usr/(bin|lib)/'
 info "$libseat" | grep -Eq '^provides = libseat\.so(=|$)'
 has "$libseat" 'provides = seatd=0.9.3'
 has "$libseat" 'conflict = seatd'
+lacks "$libseat" '^conflict = libseat$'
 lacks "$libseat" '^depend = (seatd|multiseat|sessiond|sddm)$'
 files_have "$libseat" usr/lib/libseat.so usr/lib/libseat.so.1 usr/include/libseat.h
 files_lack "$libseat" '^usr/bin/seatd$'
 
-has "$multi" 'depend = libseat'
+check_multiseat_dependencies "${metadata_cache[$multi]}"
 lacks "$multi" '^(provides|conflict|replace) = '
 lacks "$multi" '^depend = (seatd|seat-udev|s6|scoped|sessiond|aclad|sddm)$'
 files_have "$multi" \
@@ -74,7 +120,7 @@ files_lack "$manager" 'flag-recommended'
 files_lack "$dbus_user" 'contents.d/default|flag-recommended'
 files_lack "$pipewire_user" 'contents.d/default|flag-recommended'
 for service in pipewire pipewire-pulse wireplumber pipewire-user; do
-  bsdtar -tf "$pipewire_user" | grep -q "etc/s6/user/sv/$service/"
+  grep -Fq "etc/s6/user/sv/$service/" <<<"${contents_cache[$pipewire_user]}"
 done
 
 lacks "$loginctl" '^depend = (aclad|libseat|multiseat|scoped|seat-udev|sessiond)$'
@@ -85,6 +131,8 @@ files_lack "$loginctl" 'multiseatctl|seatctl|sessionctl|scopectl|acladctl'
 mode=$(bsdtar -tvf "$loginctl" | awk '$NF == "usr/bin/loginctl" {print $1}')
 test "$mode" = '-rwxr-xr-x'
 
+sysusers=$(bsdtar -xOf "$sddm" usr/lib/sysusers.d/sddm.conf)
+check_greeter_account "$sysusers"
 has "$sddm" 'depend = pam_rundir'
 lacks "$sddm" '^depend = (aclad|elogind|init-logind|libseat|multiseat|scoped|seatd|sessiond)$'
 has "$sddm" 'optdepend = elogind: provide the logind seat backend'
@@ -93,7 +141,7 @@ files_lack "$sddm" 'etc/s6|10-multiseatd.conf|10-decoupling.conf|pam_sessiond|pa
 
 for name in sessiond-s6 multiseat-s6 sddm-s6; do
   archive=$(package s6-services "$name")
-  test -f "$archive"
+  cache_archive "$archive"
   case $name in
     sessiond-s6)
       lacks "$archive" '^depend = (aclad|multiseat|sddm|scoped|scoped-s6)$'

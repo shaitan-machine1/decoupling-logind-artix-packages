@@ -10,7 +10,7 @@ depends=(dbus gcc-libs glibc pam user-service-manager)
 makedepends=(cargo git rust)
 backup=('etc/sessiond.conf' 'etc/pam.d/sessiond-user')
 _commit=27ef72702556cf1018888eac25aaf655a6efd743
-source=("git+ssh://git@github.com/shaitan-machine1/sessiond.git#commit=$_commit")
+source=("git+https://github.com/shaitan-machine1/sessiond.git#commit=$_commit")
 sha256sums=('SKIP')
 
 build() {
