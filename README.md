@@ -2,6 +2,7 @@
 
 SGLogin is a login suite - a collection of independent programs that handle seats, sessions, and in future power management. It is an alternative to [systemd-logind][logind] and [elogind][elogind].
 
+## Repo list
 | Repository | Description |
 | --- | --- |
 | [sglogin][sglogin] | This overview and [Artix Linux packages](artix-packages/README.md). |
@@ -11,14 +12,16 @@ SGLogin is a login suite - a collection of independent programs that handle seat
 | [libseat fork][seatd] | C libseat with inherited-FD support. |
 | [SDDM fork][sddm] | Display-manager integration with Multiseat. |
 
+# Why does this project exist?
+
 There are 2 couplings/dependencies/problems I want to remove:
-1. Logind itself depends on systemd. Elogind kinda solves that problem.
+1. Logind itself depends on systemd.
 2. Systemd-logind/Elogind handle seats, sessions, power management inside one big daemon.
 
 ## Why not just use Elogind
 
 For the 2 problems from above:
-1. Elogind solves the systemd dependence, but it doesn't spawn per-user service manager, which is why latest Gnome doesn't work on non-systemd distros.
+1. Elogind solves the systemd dependence, but creates a new problem - it doesn't spawn per-user service manager, which is why latest Gnome doesn't work on non-systemd distros.
 2. Elogind is still 1 big daemon that handles seats, sessions, power management.
 
 
