@@ -1,6 +1,15 @@
 # SGLogin
 
-SGLogin is a login suite - a collection of independent programs that handle seats, sessions, and in future power management. It is an alternative to systemd-logind and elogind.
+SGLogin is a login suite - a collection of independent programs that handle seats, sessions, and in future power management. It is an alternative to [systemd-logind][logind] and [elogind][elogind].
+
+| Repository | Description |
+| --- | --- |
+| [sglogin][sglogin] | This overview and [Artix Linux packages](artix-packages/README.md). |
+| [multiseat][multiseat] | Seat manager. |
+| [sessiond][sessiond] | Session manager. |
+| [loginctl][loginctl] | SGLogin's CLI interface. |
+| [libseat fork][seatd] | C libseat with inherited-FD support. |
+| [SDDM fork][sddm] | Display-manager integration with Multiseat. |
 
 There are 2 couplings/dependencies/problems I want to remove:
 1. Logind itself depends on systemd. Elogind kinda solves that problem.
@@ -20,12 +29,12 @@ No big reason for that - just for simplicity, and having small composable progra
 By coupling seats and sessions I mean - if you ask both programs:
 
 How can a wayland compositor ask for a keyboard?
-- SGLogin: Call libseat's open_device function.
-- Logind: Call TakeDevice on Logind D-Dbus.
+- SGLogin: Call [libseat's open_device function][libseat-api].
+- Logind: Call [TakeDevice][login1] on Logind D-Dbus.
 
 Who can get access to a keyboard?
 - SGLogin: a client who has a libseat connection.
-- Logind: A client who started a graphical SESSION, and then called TakeControl from that SESSION.
+- Logind: A client who started a graphical SESSION, and then called [TakeControl][login1] from that SESSION.
 
 That means:
 - SGLogin: if you hold a libseat connection, you can access a seat's device(keyboard) over that connection.
@@ -36,7 +45,7 @@ Such coupling is the reason why logind has to be so big. And such decoupling is 
 
 # SGLogin `Multiseat`
 
-Multiseat is a daemon that is responsible for seat brokering.
+[Multiseat][multiseat] is a daemon that is responsible for seat brokering.
 
 A seat is a collection of devices used together: displays, keyboards, mice and other peripherals. A compositor needs access to those devices, but it should not need to create or control a login session to get that access.
 
@@ -52,7 +61,7 @@ Ideally, a seat daemon/device broker should:
 
 SGLogin Multiseat exposes a root-only D-Bus. But the unprivileged compositor still needs to access it. Multiseat expects this:
 
-A greeter(like SDDM) is running as root, it it supposed to KNOW about Multiseat, open a connection on that seat, and provide the connection to compositor.
+A greeter(like [SDDM][sddm]) is running as root, it it supposed to KNOW about Multiseat, open a connection on that seat, and provide the connection to compositor.
 
 So privileged SDDM calls CreateClient(uid, seat_name), Multiseat responds with an FD. FD is a connection to seatd-compatible socket. Privileged SDDM has to transfer this FD to unprivileged compositor. Now unprivileged compositor can talk to that FD using libseat.
 
@@ -63,26 +72,26 @@ Libseat should know about it, not compositor. And there are 2 problems with it:
 2. Normal libseat only opens connection by itself, using a socket path, it doesn't support an already open FD.
 
 - For 1: SDDM should get an FD, and also set an ENV variable `SEATD_FD=<fd_number>`.
-- For 2: I forked libseat, and made it check for SEATD_FD env variable, so when it's set, it uses that FD as a seatd socket. I think that change should go into upstream libseat.
+- For 2: I [forked libseat][seatd], and made it [check for SEATD_FD env variable][inherited-fd], so when it's set, it uses that FD as a seatd socket. I think that change should go into upstream libseat.
 
 ## 2. Device bindings, available devices advertisement
 
 Ideally, libseat would need to expose inteface that allows to advertise available devices. But:
 1. Libseat doesn't have that interface.
-2. Most of compositors rely on libinput to know what device belongs to what seat, and use env variable to know what seat they are on. And libinput uses udev rules for seat rules.
+2. Most of compositors rely on [libinput][libinput-seats] to know what device belongs to what seat, and use env variable to know what seat they are on. And libinput uses [udev rules][udev] for seat rules.
 
-That's why we have a kinda ugly choice - Multiseat uses `seat-udev` library that can read device-seat bindings. It's an abstraction that is an AUTHORITY and ADVERTISER for resolving seat-device mapping.
+That's why we have a kinda ugly choice - Multiseat uses [`seat-udev`][seat-udev] library that can read device-seat bindings. It's an abstraction that is an AUTHORITY and ADVERTISER for resolving seat-device mapping.
 
 That means multiseat does NOT have an internal device-seat bindings config.
 
 ## 3. Moving devices between seats
 
-`seat-udev` allows moving devices between seats. User can access it through SGLogin's `loginctl seat` interface.
+`seat-udev` allows moving devices between seats. User can access it through SGLogin's [`loginctl seat`][loginctl] interface.
 
 ## 4. React on seat changes immediately
 
 1. `seat-udev` can listen to udev events - it can say that device is moved or hot-plugged to a new seat.
-2. `Multiseat` uses `seat-udev` to listen to those events. It updates each seat's `seatd-server` with that new info. `seatd-server` is intentionally kept dumb, but flexible, and able to add new devices and revoke already open devices.
+2. `Multiseat` uses `seat-udev` to listen to those events. It updates each seat's [`seatd-server`][seatd-server] with that new info. `seatd-server` is intentionally kept dumb, but flexible, and able to add new devices and revoke already open devices.
 
 ## 5. Provide device access upon request
 
@@ -96,7 +105,7 @@ This is the only reason for existence of `Multiseat` D-Bus. Without ACL, it coul
 
 For that reason, normal seatd FD minting is not suitable. A greeter has to call Multiseat D-Bus, and specify user id that it's intending to provide access to `CreateClient(uid, seat_name)`. UID is needed ONLY for ACL.
 
-I want all device access to go through a broker, but with services like pipewire running in the user service manager, makes it kinda hard. I have not yet come up with a solution for this. If someone has an idea for this, I'm open to help, you can open an issue in this repo.
+I want all device access to go through a broker, but with services like [pipewire][pipewire] running in the user service manager, makes it kinda hard. I have not yet come up with a solution for this. If someone has an idea for this, I'm open to help, you can [open an issue in this repo][issues].
 
 
 # SGLogin `Sessiond`
@@ -110,13 +119,13 @@ An ideal session manager should:
 
 ## 1. Integration with existing login programs
 
-Sessiond integrates through PAM, using `pam_sessiond`. SSH, console login and display managers already use PAM, so they don't need a sessiond-specific interface.
+[Sessiond][sessiond] integrates through [PAM][pam], using [`pam_sessiond`][pam-sessiond]. SSH, console login and display managers already use PAM, so they don't need a sessiond-specific interface.
 
 ## 2. Session ID, tracking, scoping
 
 With SGLogin - a session is a group of processes belonging to one login.
 
-Sessiond uses `lib-scoped` as a way to scope the session. Essentially, it's just a daemonless wrapper of cgroups v2, exposing the operations that sessiond needs. Sessiond can answer to any session-related question without asking a daemon, but only by wrapping a `lib-scoped` call, which wraps a cgroups v2 call.
+Sessiond uses [`lib-scoped`][lib-scoped] as a way to scope the session. Essentially, it's just a daemonless wrapper of [cgroups v2][cgroup-v2], exposing the operations that sessiond needs. Sessiond can answer to any session-related question without asking a daemon, but only by wrapping a `lib-scoped` call, which wraps a cgroups v2 call.
 
 Every process that was created inside that session is a descendant of PAM host, and PAM host is inside a cgroup, which means all session processes will belong to the same cgroup.
 
@@ -127,7 +136,7 @@ Systemd-logind and Elogind use cgroups too.
 ## 3. `XDG_RUNTIME_DIR` and per-user service manager
 
 Some resources belong to a user, not an individual session:
-1. `/run/user/<uid>`, exposed as `XDG_RUNTIME_DIR`.
+1. `/run/user/<uid>`, exposed as [`XDG_RUNTIME_DIR`][xdg-runtime-dir].
 2. The per-user service manager.
 
 If a user logs in twice, both sessions share these resources. Closing one session should not destroy resources still needed by the other.
@@ -154,7 +163,7 @@ The entrypoint is selected at build time using `SESSIOND_USER_SERVICE_MANAGER`. 
 
 ## 4. Reliably ending sessions
 
-SGLogin's `loginctl` provides the administrative interface:
+SGLogin's [`loginctl`][loginctl] provides the administrative interface:
 
 ```sh
 loginctl session list
@@ -165,4 +174,27 @@ Cleanup first requests graceful termination(same as on closing session with PAM)
 
 ## 5. Session events
 
-Sessiond provides `SessionNew` and `SessionRemoved` D-Bus signals. I don't have any use-case for them right now, but maybe I'll use it at some point. Systemd-logind/Elogind provide it too, so why not?
+[Sessiond][sessiond] provides `SessionNew` and `SessionRemoved` D-Bus signals. I don't have any use-case for them right now, but maybe I'll use it at some point. Systemd-logind/Elogind provide it too, so why not?
+
+[sglogin]: https://github.com/shaitan-machine1/sglogin
+[multiseat]: https://github.com/shaitan-machine1/multiseat
+[seatd]: https://github.com/shaitan-machine1/seatd
+[sessiond]: https://github.com/shaitan-machine1/sessiond
+[loginctl]: https://github.com/shaitan-machine1/loginctl
+[sddm]: https://github.com/shaitan-machine1/sddm
+[logind]: https://www.freedesktop.org/software/systemd/man/latest/systemd-logind.service.html
+[elogind]: https://github.com/elogind/elogind
+[login1]: https://www.freedesktop.org/software/systemd/man/latest/org.freedesktop.login1.html
+[libseat-api]: https://github.com/shaitan-machine1/seatd/blob/master/include/libseat.h
+[inherited-fd]: https://github.com/shaitan-machine1/seatd/blob/master/libseat/backend/seatd.c
+[libinput-seats]: https://wayland.freedesktop.org/libinput/doc/latest/seats.html
+[udev]: https://www.freedesktop.org/software/systemd/man/latest/udev.html
+[seat-udev]: https://github.com/shaitan-machine1/multiseat/tree/master/crates/seat-udev
+[seatd-server]: https://github.com/shaitan-machine1/multiseat/tree/master/crates/seatd-server
+[pipewire]: https://pipewire.org/
+[issues]: https://github.com/shaitan-machine1/sglogin/issues
+[pam]: https://www.linux-pam.org/
+[pam-sessiond]: https://github.com/shaitan-machine1/sessiond/tree/master/crates/pam-sessiond
+[lib-scoped]: https://github.com/shaitan-machine1/sessiond/tree/master/crates/lib-scoped
+[cgroup-v2]: https://docs.kernel.org/admin-guide/cgroup-v2.html
+[xdg-runtime-dir]: https://specifications.freedesktop.org/basedir-spec/latest/
